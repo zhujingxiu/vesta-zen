@@ -26,7 +26,7 @@ HTML;
 //        $this->radio('banners_open_new_windows ', 'Banner New Window')->options([0=>'否',1=>'是'])
 //            ->help('NOTE: Banner will open in a new window')
 //            ->default(1);
-        $this->radio('banners_on_ssl ', 'Banner on SSL')->options([0=>'禁用',1=>'启用'])
+        $this->select('banners_on_ssl ', 'Banner on SSL')->options([0=>'禁用',1=>'启用'])
             ->help('NOTE: Banner can be displayed on Secure Pages without errors')
             ->default(1);
         $this->text('banners_title','Banners Title');
