@@ -23,34 +23,32 @@ HTML;
 
     public function xForm(Form $form)
     {
-
-        $form->radio('status ', 'Banner Status')->options([0=>'禁用',1=>'启用'])
-            ->help('NOTE: Banner status will be updated based on Scheduled Date and Impressions')
+        $form->radio('status ', '状态')->options([0=>'禁用',1=>'启用'])
+            ->help('广告状态将按生效日期和显示更新')
             ->default(1);
-        $form->radio('banners_open_new_windows ', 'Banner New Window')->options([0=>'否',1=>'是'])
-            ->help('NOTE: Banner will open in a new window')
+        $form->radio('banners_open_new_windows ', '新窗口打开')->options([0=>'否',1=>'是'])
+            ->help('广告将在新窗口打开')
             ->default(1);
-        $form->radio('banners_on_ssl ', 'Banner on SSL')->options([0=>'禁用',1=>'启用'])
-            ->help('NOTE: Banner can be displayed on Secure Pages without errors')
+        $form->radio('banners_on_ssl ', '带SSL')->options([0=>'禁用',1=>'启用'])
+            ->help('广告可以无误地显示在安全页面')
             ->default(1);
-        $form->text('banners_title','Banner Title');
-        $form->text('banners_url','Banner URL');
-        $form->select('banners_group','Banner Group')->options([
+        $form->text('banners_title','标题');
+        $form->text('banners_url','URL');
+        $form->select('banners_group','组别')->options([
             'BannersAll'=>'BannersAll',
             'SideBox-Banners'=>'SideBox-Banners',
             'Wide-Banners'=>'Wide-Banners',
         ]);
-        $form->image('banners_image','Image')->help('default save to /home/admin/web/domain/public_html/images/');
+        $form->image('banners_image','图片');
+        $form->text('banners_image_local','图片保存路径')->help('默认保存在网站目录的/images下');
 
-        $form->textarea('code','HTML Text');
-        $form->text('banners_sort_order','Sort Order - banner_box_all')
-            ->help('NOTE: The banners_box_all sidebox will display the banners in their defined sort order')
+        $form->textarea('code','HTML文本');
+        $form->number('banners_sort_order','排序值')
+            ->help('banners_box_all边框按照设定的顺序显示广告')
             ->default(0);
-        $form->date('date_scheduled','Scheduled At');
-        $form->date('expires_date','Expires On');
-        $form->text('expires_impressions','Expires OR At')->help('impressions/views');
-        //dd($this);
-
+        $form->date('date_scheduled','启用日');
+        $form->date('expires_date','有效期');
+        $form->number('expires_impressions','或在x 查看');
         return $form;
     }
 
