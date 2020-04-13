@@ -19,15 +19,17 @@
  */
 
 use Encore\Admin\Form;
-use App\Admin\Extensions\CoderPHP;
 use App\Admin\Extensions\XFile;
+use App\Admin\Extensions\LoadSelect;
 use App\Admin\Extensions\MultipleSelects;
 use App\Admin\Extensions\WangEditor;
+use App\Admin\Extensions\Coder;
 
 Form::forget(['map', 'editor']);
 
 Form::extend('file', XFile::class);
-Form::extend('coder', CoderPHP::class);
+Form::extend('coderPHP', Coder\PHP::class);
+Form::extend('loadSelect', LoadSelect::class);
 Form::extend('editor', WangEditor::class);
 Form::extend('multipleSelects', MultipleSelects::class);
 

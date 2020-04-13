@@ -4,11 +4,13 @@ namespace App\Admin\Extensions;
 
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form\Field\Select;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class loadSelect extends Select
+class LoadSelect extends Select
 {
+    public function __set($prop,$value){
+        return $this->$prop = $value;
+    }
     public function getView(): string
     {
         return 'admin::actions.form.select';

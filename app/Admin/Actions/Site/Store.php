@@ -22,15 +22,16 @@ class Store extends XBatchAction
 HTML;
     }
 
-    public function form()
+    public function xForm($form)
     {
         $countries = ZenCartCountries::status(1)->selectRaw('countries_id as id,CONCAT(countries_id," ",countries_name) AS t')->pluck('t','id');
-        $this->text('store_name', 'Your Store Name');
-        $this->text('store_owner', 'Store Owner');
-        $this->text('store_email', 'Store Owner Email Address');
-        $this->loadSelect('store_country', 'Store Country')->options($countries)->load('store_zone','api/zones');
-        $this->select('store_zone','Store Zone');
-        $this->textarea('store_address', 'Store Address');
+        $form->text('store_name', 'Your Store Name');
+        $form->text('store_owner', 'Store Owner');
+        $form->text('store_email', 'Store Owner Email Address');
+        $form->loadSelect('store_country', 'Store Country')->options($countries)->load('store_zone','api/zones');
+        $form->select('store_zone','Store Zone');
+        $form->textarea('store_address', 'Store Address');
+        return $form;
     }
 
 

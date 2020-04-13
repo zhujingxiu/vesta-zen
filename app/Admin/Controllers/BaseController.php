@@ -92,7 +92,7 @@ class BaseController extends Controller
      */
     protected function _model_init()
     {
-        $this->field_config['select']['status'] = ['0' => '禁用', '1' => '启用'];
+        $this->field_config['radio']['status'] = ['0' => '禁用', '1' => '启用'];
     }
 
     protected function _except_default()

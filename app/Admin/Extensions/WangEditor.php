@@ -8,6 +8,11 @@ class WangEditor extends Field
 {
     protected $view = 'admin.extensions.wang-editor';
 
+    public function getView(): string
+    {
+        return 'admin.extensions.wang-editor';
+    }
+
     protected static $css = [
         '/vendor/wangEditor-3.1.1/release/wangEditor.min.css',
     ];

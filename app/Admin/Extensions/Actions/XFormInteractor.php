@@ -4,45 +4,33 @@
 namespace App\Admin\Extensions\Actions;
 
 
-use App\Admin\Extensions\Coder\CoderPHP;
-use App\Admin\Extensions\LoadSelect;
 use Encore\Admin\Actions\Action;
 use Encore\Admin\Actions\Interactor\Form;
+use Encore\Admin\Admin;
+use Encore\Admin\Form\Field;
 
 class XFormInteractor extends Form
 {
-    public function __construct(Action $action)
+
+
+    public function addModalHtml()
     {
-        parent::__construct($action);
-        self::$elements[] = 'loadSelect';
-        self::$elements[] = 'coderPHP';
+        if (!method_exists($this->action,'xForm')){
+            parent::addModalHtml();
+        }else {
+            $form = new \Encore\Admin\Widgets\Form();
+            $form->method('POST');
+            $form->disableReset();
+            $form->disableSubmit();
+            $data = [
+                'form_body' => $this->action->xForm($form),
+                'title' => $this->action->name(),
+                'modal_id' => $this->getModalId(),
+            ];
+            $modal = view('admin.extensions.xmodal', $data)->render();
+
+            Admin::html($modal);
+        }
     }
 
-    /**
-     * @param string $column
-     * @param string $label
-     *
-     * @return LoadSelect
-     */
-    public function loadSelect($column, $label = '')
-    {
-        $field = new LoadSelect($column, $this->formatLabel($label));
-
-        $this->addField($field);
-
-        return $field;
-    }
-
-    /**
-     * @param $column
-     * @param string $label
-     * @return CoderPHP
-     */
-    public function coderPHP($column, $label = '')
-    {
-        $field = new CoderPHP($column, $this->formatLabel($label));
-        $this->addField($field);
-
-        return $field;
-    }
 }

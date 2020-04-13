@@ -13,6 +13,7 @@ Route::group([
     $router->get('/', 'HomeController@index')->name('admin.home');
     $router->get('/settings', 'SettingController@index')->name('admin.settings');
     $router->get('/sites', 'SiteController@index')->name('admin.sites');
+    $router->post('/sites/add-banner', 'SiteController@addBanner')->name('admin.sites.add-banner');
     $router->resource('/site-languages', SiteLanguageController::class)->except('delete');
     $router->resource('/site-templates', SiteTemplateController::class)->except('delete');
     $router->resource('/servers', ServerController::class)->except('delete');

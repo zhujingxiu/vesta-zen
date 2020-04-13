@@ -3,7 +3,6 @@
 
 namespace App\Admin\Extensions\Actions;
 
-
 use Encore\Admin\Actions\BatchAction;
 
 class XBatchAction extends BatchAction
@@ -15,29 +14,8 @@ class XBatchAction extends BatchAction
             $this->interactor = new XFormInteractor($this);
         }
     }
-
-    /**
-     * @return string
-     */
-    public function renders()
+    public function form()
     {
-        $this->addScript();
-dd($this);
-        $modalId = '';
-
-        if ($this->interactor instanceof XFormInteractor) {
-            $modalId = $this->interactor->getModalId();
-
-            if ($content = $this->html()) {
-                return $this->interactor->addElementAttr($content, $this->selector);
-            }
-        }
-
-        return sprintf(
-            "<a href='javascript:void(0);' class='%s' %s>%s</a>",
-            $this->getElementClass(),
-            $modalId ? "modal='{$modalId}'" : '',
-            $this->name()
-        );
     }
+
 }
