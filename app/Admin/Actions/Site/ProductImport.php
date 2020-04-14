@@ -41,7 +41,7 @@ HTML;
         }
         $rows = $this->readFile($file->getRealPath());
         if (is_string($rows)){
-            return $this->response()->error($rows);
+            return $this->response()->error('文件读取异常：'.$rows);
         }
         log_trace_millisecond($hash,$start,var_export($rows,true));
         $n = 0;
