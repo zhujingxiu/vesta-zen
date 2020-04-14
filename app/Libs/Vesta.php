@@ -80,7 +80,7 @@ class Vesta
         ]);
     }
 
-    public function changeDomainFTPpass($username, $domain, $ftp_user, $ftp_pass)
+    public function changeDomainFTPPass($username, $domain, $ftp_user, $ftp_pass)
     {
         return $this->run("v-change-web-domain-ftp-password", [
             'arg1' => $username,

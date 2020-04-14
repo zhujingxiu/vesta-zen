@@ -41,7 +41,7 @@ class BaseSite
         $this->vesta = new Vesta($host, $user, $pass);
 
         if ($this->checkAccount($user, $pass) != 0) {
-            throw new \Exception(sprintf("Vesta账户信息[%s@%s]验证失败", $user, $host));
+            throw new \Exception(sprintf("Vesta账户[%s@%s]验证失败", $user, $host));
         };
         $this->server_ip = $host;
         $this->server_user = $user;

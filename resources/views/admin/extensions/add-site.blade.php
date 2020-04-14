@@ -199,7 +199,7 @@
             var server = server_user+':'+server_pass+'@'+server_ip+'[#'+server_id+':'+server_name+']';
             $('.modal input[name="server_name"]').val(server);
             $('.modal input[name="server_user"]').val(server_user);
-            $('.modal input[name="server_pwd"]').val(server_pass);
+            $('.modal input[name="server_pass"]').val(server_pass);
             $('.modal input[name="server_ip"]').val(server_ip);
             $('.modal input[name="server_id"]').val(server_id);
         } else {

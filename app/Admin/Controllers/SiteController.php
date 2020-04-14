@@ -57,7 +57,7 @@ class SiteController extends BaseController
     public function columnPreview($grid){
         $grid->column(' ')->display(function () {
             return $this->template->preview;
-        })->image('',100,100);
+        })->image('',80,80);
     }
 
     public  function columnTemplate($grid)
