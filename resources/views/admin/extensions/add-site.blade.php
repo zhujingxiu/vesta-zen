@@ -16,20 +16,18 @@
             <form action="{!! $form_action !!}" method="post" pjax-container>
                 {{ csrf_field() }}
                 <div class="modal-body">
-                    <input type="hidden" name="server_id" class="server_id action">
+
                     <div class="form-group">
                         <label>服务器</label>
                         <input readonly="1" type="text" id="server_name" name="server_name"  class="form-control server_name action" placeholder="输入 服务器">
                     </div>
-                    <input type="hidden" name="server_ip"  class="server_ip action">
-
+                    <input type="hidden" name="server_id" class="server_id action">
                     <input type="hidden" name="server_user"  class="server_user action">
-
-                    <input type="hidden" name="server_pwd"  class="server_pwd action">
+                    <input type="hidden" name="server_pass"  class="server_pass action">
 
                     <div class="form-group">
                         <label>选择IP</label>
-                        <input readonly="1" type="text" id="server_ip" class="form-control server_ip action" placeholder="输入 选择IP">
+                        <input readonly="1" type="text" id="server_ip" name="server_ip" class="form-control server_ip action" placeholder="输入 选择IP">
                     </div>
                     <div class="form-group">
                         <label>DNS解析</label>
@@ -76,8 +74,7 @@
                     </div>
                     <div class="form-group" style="display: none;">
                         <label>站点预览</label>
-                        <div id="preview">
-                        </div>
+                        <div id="preview"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -194,17 +191,17 @@
             return;
         } else if (selected.length == 1) {
             $(obj).next('div').attr('id', modal_name);
-            var server_id = selected[0]
-            $('.modal input[name="server_id"]').val(server_id);
+            var server_id = selected[0];
             var server_name = $('#server-entity-'+server_id).data('name'),
                 server_ip = $('#server-entity-'+server_id).data('ip'),
                 server_user = $('#server-entity-'+server_id).data('user'),
-                server_pwd = $('#server-entity-'+server_id).data('pwd');
-            var server = server_user+':'+server_pwd+'@'+server_ip+'[#'+server_id+':'+server_name+']';
+                server_pass = $('#server-entity-'+server_id).data('pass');
+            var server = server_user+':'+server_pass+'@'+server_ip+'[#'+server_id+':'+server_name+']';
             $('.modal input[name="server_name"]').val(server);
             $('.modal input[name="server_user"]').val(server_user);
-            $('.modal input[name="server_pwd"]').val(server_pwd);
+            $('.modal input[name="server_pwd"]').val(server_pass);
             $('.modal input[name="server_ip"]').val(server_ip);
+            $('.modal input[name="server_id"]').val(server_id);
         } else {
             $.admin.swal({type: 'error', title: '该操作只允许选择一行!'});
             $(obj).next('div').removeAttr('id', modal_name);

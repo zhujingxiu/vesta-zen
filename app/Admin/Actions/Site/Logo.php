@@ -3,6 +3,7 @@
 namespace App\Admin\Actions\Site;
 
 
+use App\Libs\Site\Site;
 use Carbon\Carbon;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
@@ -65,53 +66,37 @@ HTML;
         foreach ($collection as $model) {
             $config = $model->config;
             $server = $model->server;
-            $ret = $this->replaceLogo($server->ip,$server->user,$server->pwd,
-                $config->fs_catalog,$config->admin_dir,$file->getRealPath());
+            $ret = $this->replaceLogo($server->ip,$server->user,$server->pass,
+                $config->fs_catalog,$config->admin_dir,$file);
             if ($ret['code']!=200){
-                $errors[] = sprintf('[#%s]%s替换失败：%s',$model->id,$model->domain,$ret['msg']);
+                $errors[] = sprintf('[#%s]%s：%s',$model->id,$model->domain,$ret['msg']);
                 continue;
             }
             $n++;
         }
-        $msg = implode("<br>", $errors);
         if ($n) {
-            return $this->response()->success(sprintf('修改站点Logo：%s个站点成功，错误信息：%s', $n,$msg ))->refresh();
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
-        return $this->response()->error(sprintf('修改站点Logo失败：%s', $msg));
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 
     /**
      * @param $server_ip
      * @param $server_user
-     * @param $server_pwd
+     * @param $server_pass
      * @param $site_folder
      * @param $admin_dir
-     * @param $logo
+     * @param $file
      * @return array
      */
-    protected function replaceLogo($server_ip,$server_user,$server_pwd,$site_folder,$admin_dir,$logo)
+    protected function replaceLogo($server_ip,$server_user,$server_pass,$site_folder,$admin_dir,UploadedFile $file)
     {
         // 替换后台文件
-        $remote_file = sprintf("%s/%s/images/logo.gif", $site_folder, $admin_dir);
-        try {
-            $connection = ssh2_connect($server_ip, 22);
-            ssh2_auth_password($connection, $server_user, $server_pwd);
-            // 传输到远程
-            $start_scp_send = Carbon::now()->format('H:i:s.u');
-            if (ssh2_scp_send($connection, $logo, $remote_file, 0644)) {
-                Log::info($this->hash.'changeLogo-ssh2-scp-send-time:' . var_export([
-                        'start' => $start_scp_send,
-                        'diff' => Carbon::now()->diffInMilliseconds($start_scp_send),
-                        'end' => Carbon::now()->format('H:i:s.u'),
-                        'local'=>$logo,
-                        'remote'=>$remote_file,
-                    ], true));
-
-            } else {
-                return msg_error('Logo图片发送失败');
-            }
-        } catch (\Exception $e) {
-            return msg_error($e->getMessage());
+        $logo = $file->getRealPath();
+        $remote_file = sprintf("%s/%s/images/logo.gif", trim($site_folder,'/'), trim($admin_dir,'/'));
+        $ret = (new Site($server_ip,$server_user,$server_pass))->sendFile($logo,$remote_file);
+        if ($ret['code']!=200){
+            return $ret;
         }
         return msg_success($site_folder);
     }

@@ -50,7 +50,7 @@ class ServerController extends BaseController
     {
         parent::_model_init();
         $this->field_config['replace'] = ['group_id' => 'group.name'];
-        $this->field_config['password'] = ['root', 'pwd'];
+        $this->field_config['password'] = ['root', 'pass'];
         $this->field_config['select']['status'] = Server::_gird_status_all();
         $this->field_config['select']['group_id'] = ServerGroup::status(1)->pluck('name', 'id');
         $this->field_config['after']['id'] = 'columnServerImg';
@@ -63,10 +63,10 @@ class ServerController extends BaseController
             $name = $this->name;
             $ip = $this->ip;
             $user = $this->user;
-            $pwd = $this->pwd;
+            $pass = $this->pass;
             $default_img = asset('img/server_default.png');
             return <<<HTML
-        <span id="server-entity-{$id}" class="hidden" data-name="{$name}" data-ip="{$ip}" data-user="{$user}" data-pwd="{$pwd}"></span>  
+        <span id="server-entity-{$id}" class="hidden" data-name="{$name}" data-ip="{$ip}" data-user="{$user}" data-pass="{$pass}"></span>  
         <img src="{$default_img}" width="80px">
 HTML;
         });
@@ -94,7 +94,7 @@ HTML;
         }
         $server_ip = $request->get('server_ip');
         $server_user = $request->get('server_user');
-        $server_pwd = $request->get('server_pwd');
+        $server_pass = $request->get('server_pass');
         $domain_str = trim_all($request->get('domain'));
         $sub_domain = $request->get('sub_domain');
         $level = $request->get('level');
@@ -144,7 +144,7 @@ HTML;
             }
             $start_add_site = Carbon::now()->format('H:i:s.u');
             list($db_user, $db_pass) = site_db_info();
-            $site = new Site($server_ip, $server_user, $server_pwd, $trace_hash);
+            $site = new Site($server_ip, $server_user, $server_pass, $trace_hash);
             $ret = $site->add($domain_str, $tpl_dir, $tpl_admin, $tpl_db, $lang_dir, $lang_code, $db_user, $db_pass);
             log_trace_millisecond($trace_hash . 'add-site-finished-time:', $start_add_site, compact('ret'));
 
@@ -174,18 +174,19 @@ HTML;
      * @param $db_file
      * @param $db_name
      * @param $db_user
-     * @param $db_pwd
+     * @param $db_pass
+     * @param $records
      * @return array
      */
     protected function storeSite($domain, $lang_dir, $server_id, $tpl_id,
-                                 $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pwd, $records)
+                                 $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pass, $records)
     {
         $server = $this->serverRepository->getServerById($server_id);
         if (!$server) {
             return msg_error('没有找到服务器');
         }
         return $this->siteRepository->addSite($domain, $lang_dir, $server_id, $server->ip,
-            $tpl_id, $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pwd, $records);
+            $tpl_id, $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pass, $records);
 
     }
 

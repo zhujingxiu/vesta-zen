@@ -24,13 +24,15 @@ HTML;
 
     public function xForm($form)
     {
-        $countries = ZenCartCountries::status(1)->selectRaw('countries_id as id,CONCAT(countries_id," ",countries_name) AS t')->pluck('t','id');
-        $form->text('store_name', 'Your Store Name');
-        $form->text('store_owner', 'Store Owner');
-        $form->text('store_email', 'Store Owner Email Address');
-        $form->loadSelect('store_country', 'Store Country')->options($countries)->load('store_zone','api/zones');
-        $form->select('store_zone','Store Zone');
-        $form->textarea('store_address', 'Store Address');
+        $countries = ZenCartCountries::status(1)
+            ->selectRaw('countries_id as id,CONCAT(countries_id," ",countries_name) AS t')
+            ->pluck('t','id');
+        $form->text('store_name', '商店标题');
+        $form->text('store_owner', '商店店主');
+        $form->text('store_email', 'Email地址');
+        $form->loadSelect('store_country', '所在国家')->options($countries)->load('store_zone','api/zones');
+        $form->select('store_zone','所属区域');
+        $form->textarea('store_address', '详细店址');
         return $form;
     }
 
@@ -49,7 +51,7 @@ HTML;
         foreach ($collection as $model) {
             $config = $model->config;
             $server = $model->server;
-            $zen = new ZenCart($server->ip,$config->db_user,$config->db_pwd,$config->db_name);
+            $zen = new ZenCart($server->ip,$config->db_user,$config->db_pass,$config->db_name);
             $ret1 = $zen->config($store_name,'STORE_NAME');
             $ret2 = $zen->config($store_owner,'STORE_OWNER');
             $ret3 = $zen->config($store_email,'STORE_OWNER_EMAIL_ADDRESS','EMAIL_FROM', 'SEND_EXTRA_ORDER_EMAILS_TO',
@@ -69,8 +71,8 @@ HTML;
         }
 
         if ($n) {
-            return $this->response()->success(sprintf('设置站点商店信息：%s个站点成功，错误信息：%s', $n, implode("<br>", $errors)))->refresh();
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
-        return $this->response()->error(sprintf('设置站点商店信息失败：%s', implode('<br>', $errors)));
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 }

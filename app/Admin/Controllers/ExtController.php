@@ -54,7 +54,8 @@ class ExtController extends BaseController
     {
         return Admin::form(Ext::class, function (Form $form) {
             $form->file('preview', '文件');
-            $form->coder('coder', 'PHP代码');
+            $form->php('coder', '代码');
+            $form->coderPHP('coder1', '代码');
             $form->editor('content', '内容');
         });
     }

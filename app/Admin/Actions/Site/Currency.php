@@ -37,7 +37,7 @@ HTML;
             $ret = app(ZenCart::class,[
                 'host'=>$server->ip,
                 'db_user'=>$config->db_user,
-                'db_pass'=>$config->db_pwd,
+                'db_pass'=>$config->db_pass,
                 'db_name'=>$config->db_name,
             ])->config($currency,'DEFAULT_CURRENCY');
             if ($ret['code']){
@@ -46,12 +46,10 @@ HTML;
             }
             $n++;
         }
-
-        $msg = implode("<br>", $errors);
         if ($n) {
-            return $this->response()->success(sprintf('设置站点货币：%s个站点成功，错误信息：%s', $n,$msg ))->refresh();
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
-        return $this->response()->error(sprintf('设置站点货币失败：%s', $msg));
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 
 

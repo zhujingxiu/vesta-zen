@@ -46,8 +46,27 @@ if (!function_exists('upload_image')) {
 
     }
 }
+
+if (!function_exists('action_msg')) {
+    /**
+     * @param string $title
+     * @param int $n
+     * @param array $errors
+     * @param string $sep
+     * @return string
+     */
+    function action_msg(string $title, int $n, array $errors, string $sep = ','):string
+    {
+        if ($n){
+            return sprintf('%s:成功%s个，失败%s个 %s %s',
+                $title,$n, count($errors), count($errors) ?':':'',implode($sep,$errors));
+        }
+        return sprintf('%s失败：%s',$title,implode($sep,$errors));
+    }
+}
+
 if (!function_exists('new_db_connection')) {
-    function new_db_connection($server_ip, $db_user, $db_pass, $db_name)
+    function new_db_connection($server_ip, $db_user, $db_pass, $db_name,$charset='utf8')
     {
         $databases = app()['config']['database'];
         $connection = md5(uniqid($db_name . '-' . $server_ip));
@@ -56,7 +75,7 @@ if (!function_exists('new_db_connection')) {
         $databases['connections'][$connection]['username'] = $db_user;
         $databases['connections'][$connection]['password'] = $db_pass;
         $databases['connections'][$connection]['database'] = $db_name;
-        $databases['connections'][$connection]['charset'] = "utf8";
+        $databases['connections'][$connection]['charset'] = $charset;
         app()['config']['database'] = $databases;
         return $connection;
     }

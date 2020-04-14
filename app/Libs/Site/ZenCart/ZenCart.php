@@ -113,6 +113,7 @@ class ZenCart
             $connection = new_db_connection($host, $db_user, $db_pass, $db_name);
             $this->conn = $connection;
             $this->db = DB::connection($connection);
+
         } catch (\Exception $e) {
             $hash = str_random(16).'==';
             Log::info($hash.'zen-cart-error:'.var_export($e->getTrace(),true));
@@ -176,7 +177,6 @@ class ZenCart
      */
     public function config($value, ...$keys)
     {
-        Log::info('zencart-config:'.var_export($keys,true));
         try {
             $model = (new Configuration())->setConnection($this->conn);
             if (is_array($keys) && count($keys) > 1) {

@@ -20,8 +20,6 @@ class XFormInteractor extends Form
         }else {
             $form = new \Encore\Admin\Widgets\Form();
             $form->method('POST');
-            $form->disableReset();
-            $form->disableSubmit();
             $data = [
                 'form_body' => $this->action->xForm($form),
                 'title' => $this->action->name(),

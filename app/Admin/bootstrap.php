@@ -29,6 +29,8 @@ Form::forget(['map', 'editor']);
 
 Form::extend('file', XFile::class);
 Form::extend('coderPHP', Coder\PHP::class);
+Form::extend('coderHTML', Coder\HTML::class);
+Form::extend('coderJS', Coder\JS::class);
 Form::extend('loadSelect', LoadSelect::class);
 Form::extend('editor', WangEditor::class);
 Form::extend('multipleSelects', MultipleSelects::class);
@@ -38,4 +40,5 @@ Admin::js('/vendor/laravel-admin/AdminLTE/plugins/select2/i18n/zh-CN.js');
 //app('view')->prependNamespace('admin', resource_path('views/encore'));
 
 
+Admin::css('css/common.css');
 Admin::js('js/common.js');

@@ -62,31 +62,31 @@ JS;
                 $tpl = $model->template;
                 $db_file = storage_path(sprintf("%s/%s",rtrim($tpl->path,'/'),$tpl->db_file));
                 if (!file_exists($db_file)){
-                    $errors[] = sprintf("[#%s]%s 失败.模板的数据库文件%s不存在",$model->id,$model->domain,$db_file);
+                    $errors[] = sprintf("[#%s]%s:文件%s不存在",$model->id,$model->domain,$db_file);
                     continue;
                 }
             }
             $server = $model->server;
             $config = $model->config;
-            $site = new Site($server->ip,$server->user,$server->pwd);
-            $ret = $site->restoreDatabase($db_file,$config->db_name,$config->db_user,$config->db_pwd,1);
+            $site = new Site($server->ip,$server->user,$server->pass);
+            $ret = $site->restoreDatabase($db_file,$config->db_name,$config->db_user,$config->db_pass,1);
             if ($ret['code']!=200){
-                $errors[] = sprintf("[#%s]%s 数据库文件%s恢复失败：%s",$model->id,$model->domain,$db_file,$ret['msg']);
+                $errors[] = sprintf("[#%s]%s:文件%s-%s",$model->id,$model->domain,$db_file,$ret['msg']);
                 continue;
             }
             if ($lang_code) {
-                $ret = $site->setupSite($config->db_name, $config->db_user, $config->db_pwd, $lang_code);
+                $ret = $site->setupSite($config->db_name, $config->db_user, $config->db_pass, $lang_code);
                 if ($ret['code'] != 200) {
-                    $errors[] = sprintf("[#%s]%s 设置语言%s失败：%s", $model->id, $model->domain, $lang_code, $ret['msg']);
+                    $errors[] = sprintf("[#%s]%s:设置%s-%s", $model->id, $model->domain, $lang_code, $ret['msg']);
                     continue;
                 }
             }
             $n++;
         }
         if ($n) {
-            return $this->response()->success(sprintf('修复站点数据库：%s个站点成功，错误信息：%s', $n, implode("<br>", $errors)))->refresh();
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
-        return $this->response()->error(sprintf('修复站点数据库失败：%s', implode('<br>', $errors)));
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 
     /**

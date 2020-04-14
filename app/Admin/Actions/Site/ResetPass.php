@@ -8,15 +8,15 @@ use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class ResetPwd extends BatchAction
+class ResetPass extends BatchAction
 {
     public $name = '重置后台密码';
-    protected $selector = '.reset-pwd';
+    protected $selector = '.reset-pass';
 
     public function html()
     {
         return <<<HTML
-        <a class="btn btn-sm btn-default reset-pwd">重置后台密码</a>
+        <a class="btn btn-sm btn-default reset-pass">重置后台密码</a>
 HTML;
     }
 
@@ -39,23 +39,22 @@ HTML;
         if (!is_numeric($admin_id) || $admin_id<1){
             return $this->response()->error('重置后台密码失败：请输入有效用户ID');
         }
-        $pwd = $request->get('password');
-        $new_pwd = ZenCart::password_hash($pwd);
+        $pass = $request->get('password');
+        $new_pass = ZenCart::password_hash($pass);
         foreach ($collection as $model) {
             $config = $model->config;
             $server = $model->server;
-            $conn = new_db_connection($server->ip,$config->db_user,$config->db_pwd,$config->db_name);
-            $admin = (new Admin())->setConnection($conn)->find($admin_id);
+            $admin = (new Admin($server->ip,$config->db_user,$config->db_pass,$config->db_name))->find($admin_id);
             if (!$admin){
-                $errors[] = sprintf("[#%s]%s ID为%s的用户不存在",$model->id,$model->domain,$admin_id);
+                $errors[] = sprintf("[#%s]%s:ID为%s的用户不存在",$model->id,$model->domain,$admin_id);
                 continue;
             }
-            $admin->update(['admin_pass'=>$new_pwd,'pwd_last_change_date'=>now()]);
+            $admin->update(['admin_pass'=>$new_pass,'pwd_last_change_date'=>now()]);
             $n++;
         }
         if ($n) {
-            return $this->response()->success(sprintf('重置后台密码：%s个站点成功，错误信息：%s', $n, implode("<br>", $errors)))->refresh();
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
-        return $this->response()->error(sprintf('重置后台密码失败：%s', implode('<br>', $errors)));
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 }

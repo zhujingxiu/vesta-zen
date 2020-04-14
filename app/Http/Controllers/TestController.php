@@ -26,17 +26,17 @@ class TestController
 {
     private $server_ip = "46.4.85.58";
     private $server_user = "admin";
-    private $server_pwd = "tgJoyl5pru";
+    private $server_pass = "tgJoyl5pru";
     private $server_ip2 = "95.216.117.155";
     private $server_user2 = "admin";
-    private $server_pwd2 = "EqP5C9UgvZ";
+    private $server_pass2 = "EqP5C9UgvZ";
     private $site;
     private $site2;
     public function __construct()
     {
         try {
-            $this->site = new Site($this->server_ip, $this->server_user, $this->server_pwd);
-            //$this->site2 = new Site($this->server_ip2, $this->server_user2, $this->server_pwd2);
+            $this->site = new Site($this->server_ip, $this->server_user, $this->server_pass);
+            //$this->site2 = new Site($this->server_ip2, $this->server_user2, $this->server_pass2);
         }catch (\Exception $e){
             dd($e->getMessage());
         }
@@ -55,7 +55,7 @@ class TestController
             var_dump($ret);
             echo '</pre>';
         }
-        dd('执行验证账户操作:<br>',$this->site->checkAccount($this->server_user,$this->server_pwd));
+        dd('执行验证账户操作:<br>',$this->site->checkAccount($this->server_user,$this->server_pass));
     }
 
     public function sites()
@@ -77,7 +77,7 @@ class TestController
         $server_id = 9;
         $server_ip = $this->server_ip;
         $server_user = $this->server_user;
-        $server_pwd = $this->server_pwd;
+        $server_pass = $this->server_pass;
         try {
             $siteTemplate = app(SiteTemplateRepository::class)->getTemplateById($tpl_id);
             if (!$siteTemplate) {
@@ -123,7 +123,7 @@ class TestController
             }
             list($db_user, $db_pass) = site_db_info();
             $start_add_site = Carbon::now()->format('H:i:s.u');
-            $site = new Site($server_ip, $server_user, $server_pwd, $trace_hash);
+            $site = new Site($server_ip, $server_user, $server_pass, $trace_hash);
             $ret = $site->add($domain_str, $tpl_dir, $tpl_admin, $tpl_db, $lang_dir, $lang_code, $db_user, $db_pass);
             log_trace_millisecond($trace_hash . 'add-site-finished-time:', $start_add_site, compact('ret'));
 
@@ -154,18 +154,18 @@ class TestController
      * @param $db_file
      * @param $db_name
      * @param $db_user
-     * @param $db_pwd
+     * @param $db_pass
      * @return array
      */
     protected function storeSite($domain, $lang_dir, $server_id, $tpl_id,
-                                 $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pwd, $records)
+                                 $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pass, $records)
     {
         $server = app(ServerRepository::class)->getServerById($server_id);
         if (!$server) {
             return msg_error('没有找到服务器');
         }
         return app(SiteRepository::class)->addSite($domain, $lang_dir, $server_id, $server->ip,
-            $tpl_id, $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pwd, $records);
+            $tpl_id, $fs_catalog, $admin_dir, $db_file, $db_name, $db_user, $db_pass, $records);
 
     }
 
@@ -248,7 +248,7 @@ class TestController
      */
     public function package()
     {
-        $cp = new Vesta($this->server_ip,$this->server_user,$this->server_pwd);
+        $cp = new Vesta($this->server_ip,$this->server_user,$this->server_pass);
 
         $ret1 = $cp->changeAdminPackageConfig('4PWE8c8Df8xkPP','admin');
         $pkgs = $cp->listUserPackages();

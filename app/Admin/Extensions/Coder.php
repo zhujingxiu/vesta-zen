@@ -6,20 +6,15 @@ use Encore\Admin\Form\Field;
 
 class Coder extends Field
 {
-    public $is_action = false;
+    protected $view = 'admin.extensions.coder';
     protected $coder = 'php' ;
     public function __construct($column = '', $arguments = [])
     {
-        //self::$js = array_merge(self::$js,$this->appendJs());
-        //self::$css = array_merge(self::$js,$this->appendCss());
+        self::$js = array_merge(self::$js,$this->appendJs());
+        self::$css = array_merge(self::$js,$this->appendCss());
         parent::__construct($column,$arguments);
     }
 
-
-    public function getView(): string
-    {
-        return $this->is_action ? 'admin.extensions.coder_action' : 'admin.extensions.coder';
-    }
     protected static $css = [
         '/vendor/codemirror-5.52.2/lib/codemirror.css',
     ];
@@ -135,10 +130,12 @@ class Coder extends Field
             case 'php':
                 return '{
                     lineNumbers: true,
-                    matchBrackets: true,
-                    mode: "application/x-httpd-php",
-                    indentUnit: 4,
-                    indentWithTabs: true
+                    mode: "text/x-php",
+                    extraKeys: {
+                        "Tab": function(cm){
+                            cm.replaceSelection("    " , "end");
+                        }
+                    }
                 }';
             case 'go':
                 return '{

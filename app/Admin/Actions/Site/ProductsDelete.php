@@ -27,7 +27,12 @@ HTML;
     public function handle(Collection $collection, Request $request)
     {
         // $request ...
+        $n = 0;
+        $errors = [];
 
-        return $this->response()->success('Success message...')->refresh();
+        if ($n) {
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
+        }
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 }

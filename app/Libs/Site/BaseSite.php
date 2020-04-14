@@ -12,7 +12,7 @@ class BaseSite
     protected $hash;
     protected $server_ip;
     protected $server_user;
-    protected $server_pwd;
+    protected $server_pass;
     const ERR_ACCOUNT = 101;
     const ERR_DOMAIN = 102;
 
@@ -36,28 +36,28 @@ class BaseSite
     const ERR_VESTA_DB = 402;
     const ERR_VESTA_DOMAIN_DEL = 403;
     const ERR_VESTA_DB_DEL = 404;
-    public function __construct($host, $user, $pwd,$hash=null)
+    public function __construct($host, $user, $pass,$hash=null)
     {
-        $this->vesta = new Vesta($host, $user, $pwd);
+        $this->vesta = new Vesta($host, $user, $pass);
 
-        if ($this->checkAccount($user, $pwd) != 0) {
+        if ($this->checkAccount($user, $pass) != 0) {
             throw new \Exception(sprintf("Vesta账户信息[%s@%s]验证失败", $user, $host));
         };
         $this->server_ip = $host;
         $this->server_user = $user;
-        $this->server_pwd = $pwd;
+        $this->server_pass = $pass;
         $this->hash = $hash ?? str_random(16) . '==';
     }
 
     /**
      * 校验用户名密码是否有效
      * @param $user
-     * @param $pwd
+     * @param $pass
      * @return array|bool|string
      */
-    public function checkAccount($user, $pwd)
+    public function checkAccount($user, $pass)
     {
-        return $this->vesta->checkUser($user, $pwd);
+        return $this->vesta->checkUser($user, $pass);
     }
 
     protected function wrapperError($code, $errors)

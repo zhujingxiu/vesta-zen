@@ -44,12 +44,12 @@ class SiteRepository
      * @param $db_file
      * @param $db_name
      * @param $db_user
-     * @param $db_pwd
+     * @param $db_pass
      * @param $records
      * @return array
      */
     public function addSite($domain,$lang,$server_id,$server_ip,$tpl_id,
-                            $fs_catalog,$admin_dir,$db_file,$db_name,$db_user,$db_pwd,$records=[])
+                            $fs_catalog,$admin_dir,$db_file,$db_name,$db_user,$db_pass,$records=[])
     {
         DB::connection('mysql')->beginTransaction();
         try {
@@ -68,7 +68,7 @@ class SiteRepository
                 'db_file' => $db_file,
                 'db_name' => $db_name,
                 'db_user' => $db_user,
-                'db_pwd' => $db_pwd,
+                'db_pass' => $db_pass,
                 'status' => 1
             ]);
             $entity->server()->increment('sites');

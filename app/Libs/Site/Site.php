@@ -15,9 +15,9 @@ class Site extends BaseSite
 
     protected $site_copy = '';
 
-    public function __construct($host, $user, $pwd, $hash = null)
+    public function __construct($host, $user, $pass, $hash = null)
     {
-        parent::__construct($host, $user, $pwd, $hash);
+        parent::__construct($host, $user, $pass, $hash);
         $this->site_copy = storage_path(config('site.site_copy') ?? 'app/public/sites/copy');
     }
 
@@ -213,6 +213,36 @@ class Site extends BaseSite
         return $this->success();
     }
 
+    public function sendFile($local,$remote){
+        $start_scp_send = Carbon::now()->format('H:i:s.u');
+        try {
+            $connection = ssh2_connect($this->server_ip, 22);
+            ssh2_auth_password($connection, $this->server_user, $this->server_pass);
+            // 传输到远程
+            if (ssh2_scp_send($connection, $local, $remote, 0644)) {
+                Log::info($this->hash.'sendBanner-ssh2-scp-send-time:' . var_export([
+                        'start' => $start_scp_send,
+                        'diff' => Carbon::now()->diffInMilliseconds($start_scp_send),
+                        'end' => Carbon::now()->format('H:i:s.u'),
+                        'local'=>$local,
+                        'remote'=>$remote,
+                    ], true));
+                return msg_success('文件发送成功',['path'=>$remote]);
+            }
+        } catch (\Exception $e) {
+            Log::info($this->hash.'sendBanner-ssh2-scp-send-error:' . var_export([
+                    'start' => $start_scp_send,
+                    'diff' => Carbon::now()->diffInMilliseconds($start_scp_send),
+                    'end' => Carbon::now()->format('H:i:s.u'),
+                    'local'=>$local,
+                    'remote'=>$remote,
+                    'Exception'=>$e->getMessage(),
+                ], true));
+            return msg_error($e->getMessage());
+        }
+        return msg_error('文件发送失败');
+    }
+
     /**
      * 2添加域名
      * @param $domain
@@ -266,11 +296,11 @@ class Site extends BaseSite
      * @param $db_file
      * @param $db_name
      * @param $db_user
-     * @param $db_pwd
+     * @param $db_pass
      * @param $stream_blocking
      * @return array
      */
-    public function restoreDatabase($db_file,$db_name,$db_user, $db_pwd,$stream_blocking=false)
+    public function restoreDatabase($db_file,$db_name,$db_user, $db_pass,$stream_blocking=false)
     {
         if (!file_exists($db_file)){
             return $this->error(self::ERR_SITE_SQL);
@@ -278,11 +308,11 @@ class Site extends BaseSite
         $file = sprintf("/home/%s/tmp/%s",$this->server_user,date('ymdhis').'-'.basename($db_file));
         try {
             $connection = ssh2_connect($this->server_ip, 22);
-            ssh2_auth_password($connection, $this->server_user, $this->server_pwd);// 传输到远程
+            ssh2_auth_password($connection, $this->server_user, $this->server_pass);// 传输到远程
 
             if (ssh2_scp_send($connection, $db_file, $file, 0644)) {
                 $start_cmd_restore = Carbon::now()->format('H:i:s.u');
-                $cmd2 = sprintf('mysql -u %s -p%s %s < %s', $db_user, $db_pwd, $db_name, $file);
+                $cmd2 = sprintf('mysql -u %s -p%s %s < %s', $db_user, $db_pass, $db_name, $file);
                 $stream2 = ssh2_exec($connection, $cmd2);
                 $errorStream2 = ssh2_fetch_stream($stream2, SSH2_STREAM_STDERR);
                 stream_set_blocking($errorStream2, $stream_blocking);
@@ -483,7 +513,7 @@ class Site extends BaseSite
 
         try {
             $connection = ssh2_connect($this->server_ip, 22);
-            ssh2_auth_password($connection, $this->server_user, $this->server_pwd);
+            ssh2_auth_password($connection, $this->server_user, $this->server_pass);
             // 传输到远程
             $start_scp_send = Carbon::now()->format('H:i:s.u');
             if (ssh2_scp_send($connection, $local_zip, $site_zip, 0644)) {
@@ -510,23 +540,7 @@ class Site extends BaseSite
                             'errOutput' => $errOutput,
                         ], true));
                     if ($errOutput) {
-//                        $start_cmd_unzip_validate = Carbon::now()->format('H:i:s.u');
-//                        $cmd = sprintf('find /home/%s/web/ -type d -name %s', $this->server_user, strtolower($domain));
-//                        $stream = ssh2_exec($connection, $cmd);
-//                        $errorStream = ssh2_fetch_stream($stream, SSH2_STREAM_STDERR);
-//                        stream_set_blocking($errorStream, true);
-//                        stream_set_blocking($stream, true);
-//                        $errOutput = stream_get_contents($errorStream);
-//                        $output = stream_get_contents($stream);
-//                        Log::info($this->hash . 'unpackSite-cmd-unzip-error-validate-time:' . var_export([
-//                                'start' => $start_cmd_unzip,
-//                                'diff' => Carbon::now()->diffInMilliseconds($start_cmd_unzip_validate),
-//                                'end' => Carbon::now()->format('H:i:s.u'),
-//                                'cmd' => $cmd,
-//                                'output' => $output,
-//                                'errOutput' => $errOutput,
-//                                'usleep'=>50000
-//                            ], true));
+
                         $run_time--;
                         if ($run_time<=0){
                             return $this->error($errOutput, self::ERR_SITE_RESTORE);
@@ -551,13 +565,13 @@ class Site extends BaseSite
      * 配置zencart:数据库等信息
      * @param $db_name
      * @param $db_user
-     * @param $db_pwd
+     * @param $db_pass
      * @param $lang_code
      * @return array
      */
-    public function setupSite($db_name, $db_user, $db_pwd, $lang_code)
+    public function setupSite($db_name, $db_user, $db_pass, $lang_code)
     {
-        $zen = new ZenCart($this->server_ip,$db_user,$db_pwd,$db_name);
+        $zen = new ZenCart($this->server_ip,$db_user,$db_pass,$db_name);
         $ret = $zen->config($lang_code,'DEFAULT_LANGUAGE');
         return $ret ? $this->success() : $this->error(self::ERR_SITE_LANG_UP);
     }

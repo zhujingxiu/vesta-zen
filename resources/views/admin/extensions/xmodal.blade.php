@@ -9,10 +9,6 @@
                 <div class="modal-body">
                     {!! $form_body !!}
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">{{ __('admin.close') }}</button>
-                    <button type="submit" class="btn btn-primary">{{ __('admin.submit') }}</button>
-                </div>
             </form>
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
@@ -20,5 +16,8 @@
 <script>
 $(function () {
     $('#{{$modal_id}} .modal-body .form-group').addClass('clearfix');
+    $('#{{$modal_id}} .modal-body .CodeMirror-gutter.CodeMirror-linenumbers').css('width','29px');
+    $('#{{$modal_id}} .modal-body .CodeMirror-gutter-wrapper').css('left','-30px');
+    $('#{{$modal_id}} .modal-body .CodeMirror-sizer').css('margin-left','30px');
 })
 </script>

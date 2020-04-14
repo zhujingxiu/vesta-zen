@@ -16,7 +16,7 @@ class BatchPackage extends BatchAction
         $errors = [];
         foreach ($collection as $model) {
             // ...
-            $cp = new Vesta($model->ip, $model->user, $model->pwd);
+            $cp = new Vesta($model->ip, $model->user, $model->pass);
             $ret = $cp->changeAdminPackageConfig($model->root, 'admin');
             if (is_array($ret)) {
                 $errors[] = sprintf("%s[%s] 扩展失败:%s", $model->name, $model->id, implode("-", $ret));

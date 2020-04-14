@@ -11,7 +11,7 @@ class BaseModel extends Model
     public const CREATED_AT = 'date_added';
     public const UPDATED_AT = 'last_modified';
 
-    public function __construct(array $attributes = [])
+    public function __construct($host=null,$db_user=null,$db_pass=null,$db_name=null,array $attributes = [])
     {
         if (!$this->table){
             $this->table = $this->getTable();
@@ -21,6 +21,9 @@ class BaseModel extends Model
         }
         $this->primaryKey = $this->_pk ?? $this->table.'_'.$this->primaryKey;
 
+        if ($host && $db_user && $db_pass && $db_name){
+            $this->setConnection(new_db_connection($host,$db_user,$db_pass,$db_name));
+        }
         parent::__construct($attributes);
     }
 

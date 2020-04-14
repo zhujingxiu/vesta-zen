@@ -8,13 +8,8 @@ use Illuminate\Support\Str;
 
 class LoadSelect extends Select
 {
-    public function __set($prop,$value){
-        return $this->$prop = $value;
-    }
-    public function getView(): string
-    {
-        return 'admin::actions.form.select';
-    }
+
+    protected $view = 'admin.extensions.load-select';
 
     public function load($field, $sourceUrl, $idField = 'id', $textField = 'text', bool $allowClear = true)
     {

@@ -6,13 +6,13 @@ class Vesta
 {
     protected $host;
     protected $user;
-    protected $pwd;
+    protected $pass;
 
-    public function __construct($hostname, $user, $pwd)
+    public function __construct($hostname, $user, $pass)
     {
         $this->host = $hostname;
         $this->user = $user;
-        $this->pwd = $pwd;
+        $this->pass = $pass;
     }
 
     public function addUser($username, $password, $email = "", $package = "", $fist_name = "", $last_name = "")
@@ -69,24 +69,24 @@ class Vesta
         ]);
     }
 
-    public function addDomainFTPUser($username, $domain, $ftp_user, $ftp_pwd, $ftp_path = "")
+    public function addDomainFTPUser($username, $domain, $ftp_user, $ftp_pass, $ftp_path = "")
     {
         return $this->run("v-add-web-domain-ftp", [
             'arg1' => $username,
             'arg2' => $domain,
             'arg3' => $ftp_user,
-            'arg4' => $ftp_pwd,
+            'arg4' => $ftp_pass,
             'arg5' => $ftp_path,
         ]);
     }
 
-    public function changeDomainFTPPwd($username, $domain, $ftp_user, $ftp_pwd)
+    public function changeDomainFTPpass($username, $domain, $ftp_user, $ftp_pass)
     {
         return $this->run("v-change-web-domain-ftp-password", [
             'arg1' => $username,
             'arg2' => $domain,
             'arg3' => $ftp_user,
-            'arg4' => $ftp_pwd,
+            'arg4' => $ftp_pass,
         ]);
     }
 
@@ -264,7 +264,7 @@ class Vesta
     {
         $data = [
             'user' => $this->user,
-            'password' => $this->pwd,
+            'password' => $this->pass,
             'cmd' => $command,
         ];
         if ($returncode) {
@@ -342,7 +342,7 @@ class Vesta
 
     public function __toString()
     {
-        return sprintf("host:%s|user:%s|pass:%s", $this->host, $this->user, $this->pwd);
+        return sprintf("host:%s|user:%s|pass:%s", $this->host, $this->user, $this->pass);
     }
 
 

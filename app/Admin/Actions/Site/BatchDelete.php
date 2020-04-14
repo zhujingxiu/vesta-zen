@@ -28,23 +28,23 @@ class BatchDelete extends BatchAction
         $n = 0;
         foreach ($collection as $model) {
             $server = $model->server;
-            $ret = (new Site($server->ip, $server->user, $server->pwd))->delete($model->domain, $model->config->db_name);
+            $ret = (new Site($server->ip, $server->user, $server->pass))->delete($model->domain, $model->config->db_name);
             if ($ret['code'] != 200) {
-                $errors[] = sprintf('站点[%s]删除失败:%s', $model->domain, $ret['msg']);
+                $errors[] = sprintf('[#%s]%s:%s', $model->id, $model->domain, $ret['msg']);
                 continue;
             }
             $ret = $this->deleteDNSRecord($model->domain, $model->id);
             if ($ret['code'] != 200) {
-                $errors[] = sprintf('站点[%s]DNS记录删除失败:%s', $model->domain, $ret['msg']);
+                $errors[] = sprintf('[#%s]%s:DNS记录异常-%s', $model->id, $model->domain, $ret['msg']);
                 //continue;
             }
             app(SiteRepository::class)->deleteSite($model->id);
             $n++;
         }
         if ($n) {
-            return $this->response()->success(sprintf('删除%s个站点成功，错误信息：%s', $n, implode("<br>", $errors)))->refresh();
+            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
-        return $this->response()->error(sprintf('删除站点失败：%s', implode('<br>', $errors)));
+        return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 
 
