@@ -141,7 +141,7 @@ class ImportProduct extends ZenCart
                     'v_specials_date_avail',
                     'v_specials_expires_date')
             );
-            Log::info($this->hash.'store-product-data:',var_export($special,true));
+            Log::info($this->hash.'store-product-data:'.var_export($special,true));
             if ($tax){
                 $product->tax()->save($tax);
             }
