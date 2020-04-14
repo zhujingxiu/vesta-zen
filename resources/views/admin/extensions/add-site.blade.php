@@ -91,7 +91,7 @@
             checkboxClass:'icheckbox_minimal-blue',
             radioClass   : 'iradio_minimal-blue'
         });
-        $("#domain").delay(300).bind('change,blur,input porpertychange',function(){
+        $("#domain").delay(666).bind('input porpertychange,blur,change',function(){
             var str = $(this).val()
             if(str.indexOf('.') != -1 ){
                 $.getJSON('/admin/api/parse-domain',{_t:Math.random(),domain:str},function (json) {
