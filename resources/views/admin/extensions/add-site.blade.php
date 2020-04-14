@@ -172,10 +172,6 @@
                 },
                 error: function(request) {
                     $.admin.swal("创建失败", "Connection error", "error");
-                },
-                complete:function () {
-                    console.log('request finished');
-                    //NProgress.done()
                 }
             });
         })

@@ -4,6 +4,7 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Actions\Site\Banner;
 use App\Admin\Actions\Site\Currency;
+use App\Admin\Actions\Site\GoBack;
 use App\Admin\Actions\Site\Logo;
 use App\Admin\Actions\Site\ProductsDelete;
 use App\Admin\Actions\Site\Store;
@@ -70,6 +71,13 @@ class SiteController extends BaseController
     protected function setGridMethods($grid)
     {
         $grid->disableCreateButton();
+    }
+
+    protected function disableActions($grid)
+    {
+        $grid->actions(function ($actions) {
+            $actions->add(new GoBack);
+        });
     }
 
     protected function batch($batch)

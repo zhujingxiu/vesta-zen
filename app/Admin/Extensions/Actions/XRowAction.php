@@ -11,6 +11,14 @@ class XRowAction extends RowAction
     public function render()
     {
         if ($href = $this->href()) {
+            if (is_array($href)){
+                $_link = $href['link'];
+                $_class= $href['class'] ? 'class="'.$href['class'].'"' :'' ;
+                $_target= $href['target'] ? 'target="'.$href['target'].'"' :'' ;
+                $_onclick= $href['onclick'] ? 'onclick="'.$href['onclick'].'"' :'' ;
+                return sprintf('<a href="%s" %s >%s</a>',
+                    $_link,($_class.' '.$_target.' '.$_onclick),$this->name());
+            }
             return "<a href='{$href}'>{$this->name()}</a>";
         }
 

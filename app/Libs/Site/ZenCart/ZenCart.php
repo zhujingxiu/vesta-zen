@@ -107,17 +107,18 @@ class ZenCart
     protected $db = null;
     protected $conn = null;
 
-    public function __construct($host, $db_user, $db_pass, $db_name)
+    public function __construct($host, $db_user, $db_pass, $db_name,$hash=null)
     {
+        $this->hash = $hash ?? str_random(16).'==';
         try {
             $connection = new_db_connection($host, $db_user, $db_pass, $db_name);
             $this->conn = $connection;
             $this->db = DB::connection($connection);
 
         } catch (\Exception $e) {
-            $hash = str_random(16).'==';
-            Log::info($hash.'zen-cart-error:'.var_export($e->getTrace(),true));
-            Log::info($hash.'zen-cart-databases:'.var_export(app()['config']['database'],true));
+
+            Log::info($this->hash.'zen-cart-error:'.var_export($e->getTrace(),true));
+            Log::info($this->hash.'zen-cart-databases:'.var_export(app()['config']['database'],true));
         }
     }
 
@@ -186,7 +187,7 @@ class ZenCart
                     ->update(['configuration_value'=> $value]);
             }
         } catch (\Exception $e) {
-            Log::info('zen-config-error:'.$e->getMessage());
+            Log::info($this->hash.'zen-config-error:'.$e->getMessage());
             return false;
         }
         return true;

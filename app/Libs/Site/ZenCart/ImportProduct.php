@@ -7,6 +7,7 @@ namespace App\Libs\Site\ZenCart;
 use App\Libs\Site\ZenCart\Models\Manufacturers;
 use App\Libs\Site\ZenCart\Models\Products;
 use App\Libs\Site\ZenCart\Models\TaxClass;
+use Illuminate\Support\Facades\Log;
 
 class ImportProduct extends ZenCart
 {
@@ -84,7 +85,7 @@ class ImportProduct extends ZenCart
             // tax_class
             if ($record['v_tax_class_title'] && $record['v_tax_class_title'] != '--none--') {
                 $taxClass = (new TaxClass())->setConnection($this->conn)
-                    ->where($this->keyMap('v_tax_class_title'), $record['v_tax_class_title'])->first();
+                    ->where($this->extractKeyMap($record,'v_tax_class_title'))->first();
                 if (!$taxClass) {
                     return false;
                 }
@@ -92,44 +93,63 @@ class ImportProduct extends ZenCart
             // manufacturers
             if ($record['v_manufacturers_name']) {
                 $manufacturer = (new Manufacturers())->setConnection($this->conn)
-                    ->where($this->keyMap('v_manufacturers_name'), $record['v_manufacturers_name'])->first();
+                    ->where($this->extractKeyMap($record,'v_manufacturers_name'))->first();
                 if (!$manufacturer) {
                     return false;
                 }
             }
-            // products
-            $modelProduct = (new Products())->setConnection($this->conn);
-            $product = $modelProduct->where($this->keyMap('v_products_model'), $record['v_products_model'])->first();
-            if (!$product) {
-                $product = $modelProduct->create(
-                    $this->extractKeyMap($record, 'v_products_model',
-                        'v_products_image',
-                        'v_products_price',
-                        'v_products_weight',
-                        'v_date_avail',
-                        'v_date_added',
-                        'v_products_quantity',
-                        'v_metatags_products_name_status',
-                        'v_metatags_title_status',
-                        'v_metatags_model_status',
-                        'v_metatags_price_status',
-                        'v_metatags_title_tagline_status')
-                );
-
-                $product->special()->create(
-                    $this->extractKeyMap($record, 'v_specials_price',
-                        'v_specials_date_avail',
-                        'v_specials_expires_date')
-                );
-
-                $product->tax()->save($taxClass);
-                $product->manufacturer()->save($manufacturer);
-                $n++;
+            $this->db->beginTransaction();
+            try {// products
+                $product = $this->store($record,$taxClass,$manufacturer);
+                if ($product->products_id){
+                    $n++;
+                }
+                $this->db->commit();
+            } catch (\Exception $e) {
+                $this->db->rollBack();
+                $errors[] = sprintf("第%s条记录插入数据表出错", $e->getMessage());
+                continue;
             }
 
         }
 
         return $n   ? msg_success(sprintf('success:%s,errors:%s',$n,implode(",",$errors)))
                     : msg_error(implode(',',$errors));
+    }
+
+    protected function store($record,$tax,$manufacturer)
+    {
+        $modelProduct = (new Products())->setConnection($this->conn);
+        $product = $modelProduct->where($this->keyMap('v_products_model'), $record['v_products_model'])->first();
+        if (!$product) {
+            $tmp = $this->extractKeyMap($record, 'v_products_model',
+                'v_products_image',
+                'v_products_price',
+                'v_products_weight',
+                'v_date_avail',
+                'v_date_added',
+                'v_products_quantity',
+                'v_metatags_products_name_status',
+                'v_metatags_title_status',
+                'v_metatags_model_status',
+                'v_metatags_price_status',
+                'v_metatags_title_tagline_status');
+            $product = app(Products::class, ['attributes' => $tmp])->setConnection($this->conn);
+            $product->save();
+            $product->specials()->create(
+                $special = $this->extractKeyMap($record, 'v_specials_price',
+                    'v_specials_date_avail',
+                    'v_specials_expires_date')
+            );
+            Log::info($this->hash.'store-product-data:',var_export($special,true));
+            if ($tax){
+                $product->tax()->save($tax);
+            }
+            if ($manufacturer){
+                $product->manufacturer()->save($manufacturer);
+            }
+
+        }
+        return $product;
     }
 }
