@@ -92,7 +92,7 @@ HTML;
             }
             return $rows;
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return $e->getMessage().'|'.$e->getFile().'|'.$e->getLine();
         }
     }
 
