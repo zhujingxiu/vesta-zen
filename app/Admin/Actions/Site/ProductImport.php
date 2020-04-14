@@ -6,6 +6,7 @@ use App\Libs\Site\ZenCart\ImportProduct;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class ProductImport extends BatchAction
 {
@@ -34,29 +35,11 @@ HTML;
         if (!in_array(strtolower($extension), ['xls', 'xlsx', 'csv'])) {
             return $this->response()->error('excel格式只允许csv,xls或者xlsx.');
         }
-        $realPath = $file->getRealPath();   //临时文件的绝对路径
-        $data = '';
-        \Maatwebsite\Excel\Facades\Excel::load($realPath, function ($reader) use (&$data) {
-            //获取excel的第几张表
-            $reader = $reader->getSheet(0);
-            //获取表中的数据
-            $data = $reader->toArray();
-        });
-        if (!is_array($data) || !$data || !isset($data[0])) {
-            return $this->response()->error('文件异常.');
+        $rows = $this->readFile($file->getRealPath());
+        if (is_string($rows)){
+            return $this->response()->error($rows);
         }
-        $columns = array_shift($data);
-        $rows = [];
-        foreach ($data as $row) {
-            $tmp = [];
-            foreach ($row as $index => $value) {
-                if (!isset($columns[$index])) {
-                    continue;
-                }
-                $tmp[$columns[$index]] = trim_all($value);
-            }
-            $rows[] = $tmp;
-        }
+        Log::info('ProductImport-records'.var_export($rows,true));
         $n = 0;
         $errors = [];
         try {
@@ -77,6 +60,36 @@ HTML;
             return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
         }
         return $this->response()->error(action_msg($this->name,$n,$errors));
+    }
+
+    protected function readFile($realPath)
+    {
+        try {
+            \Maatwebsite\Excel\Facades\Excel::load($realPath, function ($reader) use (&$data) {
+                //获取excel的第几张表
+                $reader = $reader->getSheet(0);
+                //获取表中的数据
+                $data = $reader->toArray();
+            });
+            if (!is_array($data) || !$data || !isset($data[0])) {
+                return '文件异常.';
+            }
+            $columns = array_shift($data);
+            $rows = [];
+            foreach ($data as $row) {
+                $tmp = [];
+                foreach ($row as $index => $value) {
+                    if (!isset($columns[$index])) {
+                        continue;
+                    }
+                    $tmp[$columns[$index]] = trim_all($value);
+                }
+                $rows[] = $tmp;
+            }
+            return $rows;
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
     }
 
     private function storeProducts($host, $db_user, $db_pass, $db_name, $records)
