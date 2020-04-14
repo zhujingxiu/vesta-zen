@@ -3,6 +3,7 @@
 namespace App\Admin\Actions\Site;
 
 use App\Libs\Site\ZenCart\ImportProduct;
+use Carbon\Carbon;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
@@ -27,6 +28,9 @@ HTML;
 
     public function handle(Collection $collection, Request $request)
     {
+        $hash =  str_random(16).'==';
+        $start = Carbon::now()->format('H:i:s.u');
+        log_trace_millisecond($hash,$start);
         if (!$request->hasFile('product')) {
             return $this->response()->error('请上传文件');
         }
@@ -39,7 +43,7 @@ HTML;
         if (is_string($rows)){
             return $this->response()->error($rows);
         }
-        Log::info('ProductImport-records'.var_export($rows,true));
+        log_trace_millisecond($hash,$start,var_export($rows,true));
         $n = 0;
         $errors = [];
         try {

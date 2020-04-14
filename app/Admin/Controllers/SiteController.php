@@ -63,7 +63,7 @@ class SiteController extends BaseController
         //$product->specials()->save(app(Specials::class,['attributes'=>$special])->setConnection($product->getConnectionName()));
         //$product->specials()->create($special);
         //Log::info('store-product-data:'.var_export(,true));
-        dd($product);
+        //dd($product);
     }
     public function columnPreview($grid){
         $grid->column(' ')->display(function () {
