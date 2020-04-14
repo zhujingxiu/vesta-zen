@@ -10,7 +10,7 @@ use App\Admin\Actions\Site\Store;
 use App\Admin\Actions\Site\BatchDelete;
 use App\Admin\Actions\Site\ProductDownload;
 use App\Admin\Actions\Site\ProductImport;
-use App\Admin\Actions\Site\Resetpass;
+use App\Admin\Actions\Site\ResetPass;
 use App\Admin\Actions\Site\BatchRestoreDB;
 use App\Admin\Extensions\Tools\GridModal;
 use App\Libs\Site\ZenCart\Models\Banners;
@@ -83,7 +83,7 @@ class SiteController extends BaseController
     {
         $tools->append(new ProductImport());
         $tools->append(new ProductDownload());
-        $tools->append(new Resetpass());
+        $tools->append(new ResetPass);
         $tools->append(new Logo());
         //$tools->append(new GridModal('banner管理','site-add-banner-modal',$this->bannerForm()));
         $tools->append(new Banner());
