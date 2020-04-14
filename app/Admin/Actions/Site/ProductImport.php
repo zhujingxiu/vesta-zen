@@ -32,7 +32,7 @@ HTML;
         $file = $request->file('product');
         $extension = $file->getClientOriginalExtension(); //获取上传图片的后缀名
         if (!in_array(strtolower($extension), ['xls', 'xlsx', 'csv'])) {
-            return ['code' => 202, 'data' => null, 'msg' => 'excel格式只允许csv,xls或者xlsx'];
+            return $this->response()->error('excel格式只允许csv,xls或者xlsx.');
         }
         $realPath = $file->getRealPath();   //临时文件的绝对路径
         $data = '';
@@ -82,7 +82,7 @@ HTML;
     private function storeProducts($host, $db_user, $db_pass, $db_name, $records)
     {
         if (!is_array($records) || !$records) {
-            return false;
+            return msg_error('参数不合法');
         }
         $importer = new ImportProduct($host, $db_user, $db_pass, $db_name);
         return $importer->storeProducts($records);

@@ -6,6 +6,7 @@ namespace App\Libs\Site\ZenCart;
 
 use App\Libs\Site\ZenCart\Models\Manufacturers;
 use App\Libs\Site\ZenCart\Models\Products;
+use App\Libs\Site\ZenCart\Models\Specials;
 use App\Libs\Site\ZenCart\Models\TaxClass;
 use Illuminate\Support\Facades\Log;
 
@@ -87,7 +88,8 @@ class ImportProduct extends ZenCart
                 $taxClass = (new TaxClass())->setConnection($this->conn)
                     ->where($this->extractKeyMap($record,'v_tax_class_title'))->first();
                 if (!$taxClass) {
-                    return false;
+                    $errors[] = sprintf("第%s条记录出错:%s", $row + 1,'v_tax_class_title');
+                    continue;
                 }
             }
             // manufacturers
@@ -95,7 +97,8 @@ class ImportProduct extends ZenCart
                 $manufacturer = (new Manufacturers())->setConnection($this->conn)
                     ->where($this->extractKeyMap($record,'v_manufacturers_name'))->first();
                 if (!$manufacturer) {
-                    return false;
+                    $errors[] = sprintf("第%s条记录出错:%s", $row + 1,'v_manufacturers_name');
+                    continue;
                 }
             }
             $this->db->beginTransaction();
@@ -136,12 +139,12 @@ class ImportProduct extends ZenCart
                 'v_metatags_title_tagline_status');
             $product = app(Products::class, ['attributes' => $tmp])->setConnection($this->conn);
             $product->save();
-            $product->specials()->create(
-                $special = $this->extractKeyMap($record, 'v_specials_price',
-                    'v_specials_date_avail',
-                    'v_specials_expires_date')
+            $special = $this->extractKeyMap($record, 'v_specials_price',
+                'v_specials_date_avail',
+                'v_specials_expires_date');
+            $product->specials()->save(app(Specials::class, ['attributes' => $special ])->setConnection($this->conn)
             );
-            //Log::info($this->hash.'store-product-data:'.var_export($special,true));
+            Log::info($this->hash.'store-product-data:'.var_export($special,true));
             if ($tax){
                 $product->tax()->save($tax);
             }

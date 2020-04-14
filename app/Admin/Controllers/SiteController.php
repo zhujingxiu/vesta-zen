@@ -15,11 +15,14 @@ use App\Admin\Actions\Site\ResetPass;
 use App\Admin\Actions\Site\BatchRestoreDB;
 use App\Admin\Extensions\Tools\GridModal;
 use App\Libs\Site\ZenCart\Models\Banners;
+use App\Libs\Site\ZenCart\Models\Products;
+use App\Libs\Site\ZenCart\Models\Specials;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Layout\Content;
 use App\Models\Site;
 use Encore\Admin\Widgets\Form;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class SiteController extends BaseController
 {
@@ -51,9 +54,16 @@ class SiteController extends BaseController
 //            'status' => 1,
 //            'date_added' => now(),
 //        ];
-//        $model = new Banners($host,$db_user,$db_pass,$db_name,$tmp);
-//        $model->save();
-//        dd($model);
+        $product = (new Products($host,$db_user,$db_pass,$db_name))->find(324);
+        $special = [
+            'specials_new_products_price' => 184,
+            'specials_date_available' => '',
+            'expires_date' => '',
+        ];
+        //$product->specials()->save(app(Specials::class,['attributes'=>$special])->setConnection($product->getConnectionName()));
+        //$product->specials()->create($special);
+        //Log::info('store-product-data:'.var_export(,true));
+        dd($product);
     }
     public function columnPreview($grid){
         $grid->column(' ')->display(function () {
