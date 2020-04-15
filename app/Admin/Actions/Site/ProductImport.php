@@ -64,7 +64,7 @@ HTML;
         }
 
         if ($n) {
-            return $this->response()->swal()
+            return $this->response()->toastr()
                 ->success(action_msg($this->name, $n, $errors).'<br>'.implode('<br>',$affected))
                 ->refresh();
         }

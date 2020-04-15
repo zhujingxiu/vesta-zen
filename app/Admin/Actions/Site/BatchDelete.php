@@ -20,6 +20,7 @@ class BatchDelete extends BatchAction
     public function handle(Collection $collection)
     {
         $errors = [];
+        $affected = [];
         $n = 0;
         foreach ($collection as $model) {
             $server = $model->server;
@@ -33,11 +34,18 @@ class BatchDelete extends BatchAction
                 $errors[] = sprintf('[#%s]%s:DNS记录异常-%s', $model->id, $model->domain, $ret['msg']);
                 //continue;
             }
-            app(SiteRepository::class)->deleteSite($model->id);
+            $ret = app(SiteRepository::class)->deleteSite($model->id);
+            if ($ret['code'] != 200) {
+                $errors[] = sprintf('[#%s]%s:删除站点异常-%s', $model->id, $model->domain, $ret['msg']);
+                continue;
+            }
             $n++;
+            $affected[] = sprintf('[#%s:%s]%s',$model->id,$model->domain,$ret['msg']);
         }
         if ($n) {
-            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
+            return $this->response()->toastr()
+                ->success(action_msg($this->name, $n, $errors).'<br>'.implode('<br>',$affected))
+                ->refresh();
         }
         return $this->response()->error(action_msg($this->name,$n,$errors));
     }
@@ -98,7 +106,13 @@ class BatchDelete extends BatchAction
                 }
             }
         }
-        $err_msg = implode("<br>", $errors);
-        return $n ? msg_success(sprintf("执行成功%s次，错误信息：%s", $n, $err_msg)) : msg_error($err_msg);
+        if ($n){
+            $msg = sprintf('执行成功记录:%s条',$n);
+            if ($errors){
+                $msg .= sprintf('， 失败信息：%s',implode(",",$errors));
+            }
+            return msg_success($msg,['success'=>$n,'errors'=>$errors]);
+        }
+        return  msg_error(implode("<br>", $errors));
     }
 }
