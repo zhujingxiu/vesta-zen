@@ -2,11 +2,11 @@
 
 namespace App\Admin\Actions\Site;
 
-use Encore\Admin\Actions\BatchAction;
+use App\Admin\Extensions\Actions\XBatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class ProductDownload extends BatchAction
+class ProductDownload extends XBatchAction
 {
     public $name = '下载产品数据';
     protected $selector = '.product-download';

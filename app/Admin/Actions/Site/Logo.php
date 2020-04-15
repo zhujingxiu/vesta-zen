@@ -3,6 +3,7 @@
 namespace App\Admin\Actions\Site;
 
 
+use App\Admin\Extensions\Actions\XBatchAction;
 use App\Libs\Site\Site;
 use Carbon\Carbon;
 use Encore\Admin\Actions\BatchAction;
@@ -11,7 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class Logo extends BatchAction
+class Logo extends XBatchAction
 {
     public $name = '设置网站LOGO';
     protected $selector = '.site-logo';

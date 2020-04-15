@@ -8,11 +8,6 @@ use App\Repositories\DomainRepository;
 use App\Repositories\SiteRepository;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-
 class BatchDelete extends BatchAction
 {
     public $name = '删除产品站';

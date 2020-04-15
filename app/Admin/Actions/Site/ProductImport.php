@@ -2,16 +2,18 @@
 
 namespace App\Admin\Actions\Site;
 
-use App\Imports\Admin\ProductsCsvImport;
+use App\Admin\Extensions\Actions\XBatchAction;
+use App\Imports\Admin\ProductsExcelImport;
 use App\Libs\Site\ZenCart\ImportProduct;
 use Carbon\Carbon;
 use Encore\Admin\Actions\BatchAction;
+use Encore\Admin\Facades\Admin;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ProductImport extends BatchAction
+class ProductImport extends XBatchAction
 {
     public $name = '导入产品数据';
     protected $selector = '.product-import';
@@ -28,11 +30,10 @@ HTML;
         $this->file("product", "产品数据文件")->help('.csv文件的产品数据');
     }
 
+
+
     public function handle(Collection $collection, Request $request)
     {
-        $hash =  str_random(16).'==';
-        $start = Carbon::now()->format('H:i:s.u');
-        log_trace_millisecond($hash,$start);
         if (!$request->hasFile('product')) {
             return $this->response()->error('请上传文件');
         }
@@ -42,10 +43,9 @@ HTML;
             return $this->response()->error('excel格式只允许csv,xls或者xlsx.');
         }
         $rows = $this->loadExcel($file);
-        if (is_string($rows)){
-            return $this->response()->error('文件读取异常：'.$rows);
+        if (is_string($rows) || (is_array($rows) && !$rows)) {
+            return $this->response()->error('文件内容读取异常：' . $rows);
         }
-        log_trace_millisecond($hash,$start,var_export($rows,true));
         $n = 0;
         $errors = [];
         try {
@@ -53,29 +53,28 @@ HTML;
                 $server = $model->server;
                 $config = $model->config;
                 $ret = $this->storeProducts($server->ip, $config->db_user, $config->db_pass, $config->db_name, $rows);
-                if ($ret['code']!=200){
-                    $errors[] = sprintf('[#%s]%s:%s',$model->id,$model->domain,$ret['msg']);
+                if ($ret['code'] != 200) {
+                    $errors[] = sprintf('[#%s]%s:%s', $model->id, $model->domain, $ret['msg']);
                     continue;
                 }
                 $n++;
             }
         } catch (\Exception $e) {
-            return $this->response()->error('导入失败：'.$e->getMessage());
+            return $this->response()->error('导入失败：' . $e->getMessage());
         }
         if ($n) {
-            return $this->response()->success(action_msg($this->name,$n,$errors))->refresh();
+            return $this->response()->success(action_msg($this->name, $n, $errors))->refresh();
         }
-        return $this->response()->error(action_msg($this->name,$n,$errors));
+        return $this->response()->error(action_msg($this->name, $n, $errors));
     }
 
     protected function loadExcel($file)
     {
         try {
-            $array = Excel::toArray(new ProductsCsvImport,$file);
-            dd($array);
-            $columns = array_shift($data);
+            $data = Excel::toArray((new ProductsExcelImport), $file);
+            $columns = array_shift($data[0]);
             $rows = [];
-            foreach ($data as $row) {
+            foreach ($data[0] as $row) {
                 $tmp = [];
                 foreach ($row as $index => $value) {
                     if (!isset($columns[$index])) {
@@ -87,9 +86,7 @@ HTML;
             }
             return $rows;
         } catch (\Exception $e) {
-            Log::info('load-excel-'.$realPath.'|size:'.file_size($realPath).'|err:'.$e->getMessage().'|file:'.$e->getFile().':'.$e->getLine());
-            Log::info('read-file-'.$realPath.'|'.var_export($e->getTrace(),true));
-            return var_export($e->getTrace(),true);
+            return sprintf('[%s:%s] %s',$e->getFile(),$e->getLine(),$e->getMessage());
         }
     }
 

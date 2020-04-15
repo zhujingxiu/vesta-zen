@@ -2,13 +2,13 @@
 
 namespace App\Admin\Actions\Site;
 
+use App\Admin\Extensions\Actions\XBatchAction;
 use App\Libs\Site\ZenCart\Models\Admin;
 use App\Libs\Site\ZenCart\ZenCart;
-use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class ResetPass extends BatchAction
+class ResetPass extends XBatchAction
 {
     public $name = '重置后台密码';
     protected $selector = '.reset-pass';

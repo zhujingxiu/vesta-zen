@@ -2,13 +2,13 @@
 
 namespace App\Admin\Actions\Site;
 
+use App\Admin\Extensions\Actions\XBatchAction;
 use App\Libs\Site\ZenCart\ZenCart;
 use App\Models\ZenCartCurrencies;
-use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class Currency extends BatchAction
+class Currency extends XBatchAction
 {
     public $name = '更新货币设置';
     protected $selector = '.site-currency';
