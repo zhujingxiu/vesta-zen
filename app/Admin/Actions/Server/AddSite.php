@@ -2,11 +2,11 @@
 
 namespace App\Admin\Actions\Server;
 
-use App\Admin\Extensions\Actions\XBatchAction;
+use App\Admin\Extensions\Actions\XFormBatchAction;
 use App\Models\SiteLanguage;
 use Illuminate\Http\Request;
 
-class AddSite extends XBatchAction
+class AddSite extends XFormBatchAction
 {
     public $name = "添加站点";
     protected $selector = '.add-site';

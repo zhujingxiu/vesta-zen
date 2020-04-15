@@ -2,7 +2,7 @@
 
 namespace App\Admin\Actions\Site;
 
-use App\Admin\Extensions\Actions\XBatchAction;
+use App\Admin\Extensions\Actions\XFormBatchAction;
 use App\Imports\Admin\ProductsExcelImport;
 use App\Libs\Site\ZenCart\ImportProduct;
 use Carbon\Carbon;
@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Maatwebsite\Excel\Facades\Excel;
 
-class ProductImport extends XBatchAction
+class ProductImport extends XFormBatchAction
 {
     public $name = '导入产品数据';
     protected $selector = '.product-import';

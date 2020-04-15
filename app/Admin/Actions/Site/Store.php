@@ -3,13 +3,13 @@
 namespace App\Admin\Actions\Site;
 
 
-use App\Admin\Extensions\Actions\XBatchAction;
+use App\Admin\Extensions\Actions\XFormBatchAction;
 use App\Libs\Site\ZenCart\ZenCart;
 use App\Models\ZenCartCountries;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 
-class Store extends XBatchAction
+class Store extends XFormBatchAction
 {
     public $name = '设置商店信息';
     protected $selector = '.site-config';

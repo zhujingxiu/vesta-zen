@@ -2,7 +2,7 @@
 
 namespace App\Admin\Actions\Site;
 
-use App\Admin\Extensions\Actions\XBatchAction;
+use App\Admin\Extensions\Actions\XFormBatchAction;
 use App\Libs\Site\Site;
 use App\Libs\Site\ZenCart\Models\Banners;
 use Carbon\Carbon;
@@ -13,7 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class Banner extends XBatchAction
+class Banner extends XFormBatchAction
 {
     public $name = '设置首页广告';
     protected $selector = '.site-banner';

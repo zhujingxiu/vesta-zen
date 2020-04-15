@@ -2,11 +2,11 @@
 
 namespace App\Admin\Actions\Site;
 
-use App\Admin\Extensions\Actions\XBatchAction;
+use App\Admin\Extensions\Actions\XFormBatchAction;
 use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Collection;
 
-class ProductsDelete extends XBatchAction
+class ProductsDelete extends XFormBatchAction
 {
     public $name = '批量删除产品';
     protected $selector = '.products-delete';

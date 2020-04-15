@@ -7,7 +7,7 @@ use Encore\Admin\Actions\BatchAction;
 use Encore\Admin\Facades\Admin;
 use function foo\func;
 
-class XBatchAction extends BatchAction
+class XFormBatchAction extends BatchAction
 {
     protected function initInteractor()
     {

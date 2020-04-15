@@ -2,7 +2,7 @@
 
 namespace App\Admin\Actions\Site;
 
-use App\Admin\Extensions\Actions\XBatchAction;
+use App\Admin\Extensions\Actions\XFormBatchAction;
 use App\Libs\Site\Site;
 use App\Models\SiteLanguage;
 use Encore\Admin\Admin;
@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 
-class BatchRestoreDB extends XBatchAction
+class BatchRestoreDB extends XFormBatchAction
 {
     public $name = '修复数据库';
 
