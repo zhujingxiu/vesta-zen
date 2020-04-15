@@ -2,12 +2,14 @@
 
 namespace App\Admin\Actions\Site;
 
+use App\Imports\Admin\ProductsCsvImport;
 use App\Libs\Site\ZenCart\ImportProduct;
 use Carbon\Carbon;
 use Encore\Admin\Actions\BatchAction;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ProductImport extends BatchAction
 {
@@ -34,13 +36,12 @@ HTML;
         if (!$request->hasFile('product')) {
             return $this->response()->error('请上传文件');
         }
-        dd($request->all());
         $file = $request->file('product');
         $extension = $file->getClientOriginalExtension(); //获取上传图片的后缀名
         if (!in_array(strtolower($extension), ['xls', 'xlsx', 'csv'])) {
             return $this->response()->error('excel格式只允许csv,xls或者xlsx.');
         }
-        $rows = $this->loadExcel($file->getRealPath());
+        $rows = $this->loadExcel($file);
         if (is_string($rows)){
             return $this->response()->error('文件读取异常：'.$rows);
         }
@@ -67,18 +68,11 @@ HTML;
         return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 
-    protected function loadExcel($realPath)
+    protected function loadExcel($file)
     {
         try {
-            \Maatwebsite\Excel\Facades\Excel::load($realPath, function ($reader) use (&$data) {
-                //获取excel的第几张表
-                $reader = $reader->getSheet(0);
-                //获取表中的数据
-                $data = $reader->toArray();
-            });
-            if (!is_array($data) || !$data || !isset($data[0])) {
-                return '文件异常.';
-            }
+            $array = Excel::toArray(new ProductsCsvImport,$file);
+            dd($array);
             $columns = array_shift($data);
             $rows = [];
             foreach ($data as $row) {
