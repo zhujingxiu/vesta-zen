@@ -57,7 +57,7 @@ HTML;
                     continue;
                 }
                 $n++;
-                $affected[] = sprintf('%s:%s',$model->domain,$ret['msg']);
+                $affected[] = sprintf('[#%s:%s]%s',$model->id,$model->domain,$ret['msg']);
             }
         } catch (\Exception $e) {
             return $this->response()->error('导入失败：' . $e->getMessage());
