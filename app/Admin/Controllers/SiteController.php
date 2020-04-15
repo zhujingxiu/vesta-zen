@@ -37,33 +37,7 @@ class SiteController extends BaseController
         $this->field_config['after']['id'] = 'columnPreview';
         $this->field_config['after']['server_id'] = 'columnTemplate';
         $this->field_config['replace'] = ['server_id' => 'server.name', 'tpl_id'=>'template.name'];
-        $host = '46.4.85.58';
-        $db_user = 'admin_myZenCart';
-        $db_pass = 'tgJoyl5C9UgvZ';
-        $db_name = 'admin_enlish.homeuom.com';
-//        //$model = app(Banners::class,compact('host','db_user','db_pass','db_name'));
-//        //$model = app(Banners::class,compact('host','db_user','db_pass','db_name'));
-//        $tmp = [
-//            'banners_title' => str_random(16),
-//            'banners_url' => str_random(32),
-//            'banners_group' => str_random(32),
-//            'banners_html_text' => str_random(32),
-//            'banners_open_new_windows' => 1,
-//            'banners_on_ssl' => 1,
-//            'banners_sort_order' => 11,
-//            'status' => 1,
-//            'date_added' => now(),
-//        ];
-        $product = (new Products($host,$db_user,$db_pass,$db_name))->find(324);
-        $special = [
-            'specials_new_products_price' => 184,
-            'specials_date_available' => '',
-            'expires_date' => '',
-        ];
-        //$product->specials()->save(app(Specials::class,['attributes'=>$special])->setConnection($product->getConnectionName()));
-        //$product->specials()->create($special);
-        //Log::info('store-product-data:'.var_export(,true));
-        //dd($product);
+
     }
     public function columnPreview($grid){
         $grid->column(' ')->display(function () {
