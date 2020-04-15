@@ -12,7 +12,6 @@ class GoBack extends XRowAction
     public function handle(Model $model)
     {
 
-
     }
 
     public function href()

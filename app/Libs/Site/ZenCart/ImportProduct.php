@@ -116,7 +116,7 @@ class ImportProduct extends ZenCart
 
         }
 
-        return $n   ? msg_success(sprintf('success:%s,errors:%s',$n,implode(",",$errors)))
+        return $n   ? msg_success(sprintf('插入成功记录:%s条,失败信息:%s',$n,implode(",",$errors)),['success'=>$n,'errors'=>$errors])
                     : msg_error(implode(',',$errors));
     }
 

@@ -30,8 +30,6 @@ HTML;
         $this->file("product", "产品数据文件")->help('.csv文件的产品数据');
     }
 
-
-
     public function handle(Collection $collection, Request $request)
     {
         if (!$request->hasFile('product')) {
@@ -48,6 +46,7 @@ HTML;
         }
         $n = 0;
         $errors = [];
+        $affected = [];
         try {
             foreach ($collection as $model) {
                 $server = $model->server;
@@ -58,12 +57,16 @@ HTML;
                     continue;
                 }
                 $n++;
+                $affected[] = sprintf('%s:%s',$model->domain,$ret['msg']);
             }
         } catch (\Exception $e) {
             return $this->response()->error('导入失败：' . $e->getMessage());
         }
+
         if ($n) {
-            return $this->response()->success(action_msg($this->name, $n, $errors))->refresh();
+            return $this->response()->swal()
+                ->success(action_msg($this->name, $n, $errors).'<br>'.implode('<br>',$affected))
+                ->refresh();
         }
         return $this->response()->error(action_msg($this->name, $n, $errors));
     }

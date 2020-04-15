@@ -1,23 +1,15 @@
 <?php
-
-
 namespace App\Admin\Extensions\Actions;
 
-
-use Encore\Admin\Actions\Action;
 use Encore\Admin\Actions\Interactor\Form;
 use Encore\Admin\Admin;
-use Encore\Admin\Form\Field;
-
 class XFormInteractor extends Form
 {
-
-
     public function addModalHtml()
     {
-        if (!method_exists($this->action,'xForm')){
+        if (!method_exists($this->action, 'xForm')) {
             parent::addModalHtml();
-        }else {
+        } else {
             $form = new \Encore\Admin\Widgets\Form();
             $form->method('POST');
             $data = [

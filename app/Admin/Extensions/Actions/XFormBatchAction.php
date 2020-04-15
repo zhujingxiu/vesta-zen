@@ -1,19 +1,13 @@
 <?php
-
-
 namespace App\Admin\Extensions\Actions;
 
 use Encore\Admin\Actions\BatchAction;
 use Encore\Admin\Facades\Admin;
-use function foo\func;
-
 class XFormBatchAction extends BatchAction
 {
     protected function initInteractor()
     {
         parent::initInteractor();
-
-
         if ($hasForm = method_exists($this, 'form')) {
             $this->interactor = new XFormInteractor($this);
         }
@@ -86,6 +80,5 @@ SCRIPT;
         process.then(actionResolverss).catch(actionCatcherss);
 SCRIPT;
     }
-
 
 }
