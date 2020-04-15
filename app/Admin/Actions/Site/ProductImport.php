@@ -34,6 +34,7 @@ HTML;
         if (!$request->hasFile('product')) {
             return $this->response()->error('请上传文件');
         }
+        dd($request->all());
         $file = $request->file('product');
         $extension = $file->getClientOriginalExtension(); //获取上传图片的后缀名
         if (!in_array(strtolower($extension), ['xls', 'xlsx', 'csv'])) {
