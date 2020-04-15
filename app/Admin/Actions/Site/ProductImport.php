@@ -39,7 +39,7 @@ HTML;
         if (!in_array(strtolower($extension), ['xls', 'xlsx', 'csv'])) {
             return $this->response()->error('excel格式只允许csv,xls或者xlsx.');
         }
-        $rows = $this->readFile($file->getRealPath());
+        $rows = $this->loadExcel($file->getRealPath());
         if (is_string($rows)){
             return $this->response()->error('文件读取异常：'.$rows);
         }
@@ -66,7 +66,7 @@ HTML;
         return $this->response()->error(action_msg($this->name,$n,$errors));
     }
 
-    protected function readFile($realPath)
+    protected function loadExcel($realPath)
     {
         try {
             \Maatwebsite\Excel\Facades\Excel::load($realPath, function ($reader) use (&$data) {
@@ -92,6 +92,7 @@ HTML;
             }
             return $rows;
         } catch (\Exception $e) {
+            Log::info('load-excel-'.$realPath.'|size:'.file_size($realPath).'|err:'.$e->getMessage().'|file:'.$e->getFile().':'.$e->getLine());
             Log::info('read-file-'.$realPath.'|'.var_export($e->getTrace(),true));
             return var_export($e->getTrace(),true);
         }
