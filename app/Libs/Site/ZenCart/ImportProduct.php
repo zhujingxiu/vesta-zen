@@ -115,9 +115,15 @@ class ImportProduct extends ZenCart
             }
 
         }
+        if ($n){
+            $msg = sprintf('插入成功记录:%s条',$n);
+            if ($errors){
+                $msg .= sprintf('， 失败信息：%s',implode(",",$errors));
+            }
+            return msg_success($msg,['success'=>$n,'errors'=>$errors]);
+        }
 
-        return $n   ? msg_success(sprintf('插入成功记录:%s条,失败信息:%s',$n,implode(",",$errors)),['success'=>$n,'errors'=>$errors])
-                    : msg_error(implode(',',$errors));
+        return msg_error(implode(',',$errors));
     }
 
     protected function store($record,$tax,$manufacturer)
