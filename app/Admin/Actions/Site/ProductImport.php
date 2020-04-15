@@ -92,6 +92,7 @@ HTML;
             }
             return $rows;
         } catch (\Exception $e) {
+            Log::info('read-file-'.$realPath.'|'.var_export($e->getTrace(),true));
             return var_export($e->getTrace(),true);
         }
     }
