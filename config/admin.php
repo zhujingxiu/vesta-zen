@@ -62,7 +62,7 @@ return [
 
         'namespace' => 'App\\Admin\\Controllers',
 
-        'middleware' => ['web', 'admin'],
+        'middleware' => ['web', 'admin','sso:admin'],
     ],
 
     /*
@@ -124,7 +124,7 @@ return [
         'providers' => [
             'admin' => [
                 'driver' => 'eloquent',
-                'model'  => Encore\Admin\Auth\Database\Administrator::class,
+                'model'  => \App\Models\AdminUsers::class,
             ],
         ],
 

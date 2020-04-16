@@ -3,6 +3,16 @@
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
+
+if (!function_exists('gen_sso_token'))
+{
+    function gen_sso_token()
+    {
+        return md5(sprintf('%s.%s', request()->getClientIp(),
+            \Jenssegers\Agent\Facades\Agent::getUserAgent()));
+    }
+}
+
 if (!function_exists('upload_image')) {
 
     /**

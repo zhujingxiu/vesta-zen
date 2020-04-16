@@ -5,6 +5,8 @@ namespace App\Admin\Controllers;
 use App\Models\Worker;
 use Encore\Admin\Controllers\AuthController as BaseAuthController;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Jenssegers\Agent\Facades\Agent;
 
 class AuthController extends BaseAuthController
 {
@@ -37,10 +39,31 @@ class AuthController extends BaseAuthController
             $username = $worker->admin->username;
         }
         if ($this->guard()->attempt(['username'=>$username, 'password'=>$credentials['password'] ], $remember)) {
+            $admin = $this->guard()->user();
+            if ($admin->id != 1) {
+                $sso_token = gen_sso_token();
+                session([config('sso.token_key')=> $sso_token]);
+
+                $admin->worker->login_token = $sso_token;
+                $admin->worker->save();
+            }
             return $this->sendLoginResponse($request);
         }
         return back()->withInput()->withErrors([
             $this->username() => $this->getFailedLoginMessage(),
         ]);
+    }
+
+    public function getLogout(Request $request)
+    {
+        $error_msg = $request->session()->get(config('sso.error_key'));
+        $this->guard()->logout();
+        $request->session()->invalidate();
+        if ($error_msg){
+            return redirect(config('admin.route.prefix'))->withErrors([
+                    $this->username() => $error_msg
+                ]);
+        }
+        return redirect(config('admin.route.prefix'));
     }
 }
