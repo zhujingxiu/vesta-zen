@@ -4,6 +4,7 @@
 namespace App\Models;
 
 
+
 class Site extends BaseModel
 {
     protected $table = "hz_sites";
@@ -26,5 +27,10 @@ class Site extends BaseModel
     public function dns()
     {
         return $this->hasMany(SiteDNSRecord::class);
+    }
+
+    public function admin()
+    {
+        return $this->belongsTo(AdminUsers::class);
     }
 }

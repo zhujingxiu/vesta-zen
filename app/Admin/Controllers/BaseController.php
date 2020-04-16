@@ -5,6 +5,7 @@ namespace App\Admin\Controllers;
 
 use App\Admin\Extensions\Actions\XDropdownActions;
 use App\Http\Controllers\Controller;
+use App\Models\AdminUsers;
 use Encore\Admin\Facades\Admin;
 use Encore\Admin\Form;
 use Encore\Admin\Grid;
@@ -21,6 +22,10 @@ class BaseController extends Controller
     protected $header = '';
     // 默认列表上不显示create_at字段
     protected $except_create_at = true;
+    protected $field_admin = 'admin_id';
+    protected $relate_admin = 'admin';
+    protected $autoload_admin = true;
+    protected $autoload_admin_form = true;
 
     protected $_url = '';
 
@@ -67,26 +72,14 @@ class BaseController extends Controller
             $this->model_fields = $this->table_fields($this->model_table, $this->model_conn);
         }
 
+        $this->_before_model_init();
         $this->_model_init();
-        $this->_format_comment();
-        $this->_except_default();
-//        if (isset($this->field_config['except_edit']) && $this->field_config['except_edit']){
-//            $this->field_config['except_edit'] = array_merge($this->field_config['except_edit'],[$model->getKeyName()]);
-//        }
+        $this->_after_model_init();
     }
 
-    // 自定义字段标题
-    protected function _format_comment()
+    protected function _before_model_init()
     {
-        if (isset($this->field_config['comment']) && is_array($this->field_config['comment'])) {
-            foreach ($this->field_config['comment'] as $colunm => $comment) {
-                if (isset($this->model_fields[$colunm]) && isset($this->model_fields[$colunm]['Comment'])) {
-                    $this->model_fields[$colunm]['Comment'] = $comment;
-                }
-            }
-        }
     }
-
     /**
      * 配置初始化
      */
@@ -95,12 +88,33 @@ class BaseController extends Controller
         $this->field_config['radio']['status'] = ['0' => '禁用', '1' => '启用'];
     }
 
-    protected function _except_default()
+    protected function _after_model_init()
     {
-        if ($this->except_create_at && in_array('create_at', array_keys($this->model_fields))) {
-            $this->field_config['except_list'] = array_merge($this->field_config['except_list'], ['create_at']);
+        // admin_id字段优化
+        if ($this->autoload_admin
+            && !isset($this->field_config['replace'][$this->field_admin])){
+            if(method_exists(app($this->model),$this->relate_admin)){
+                $this->field_config['replace'][$this->field_admin] =
+                    $this->relate_admin.'.name';
+            }
+        }
+        // create_at字段优化
+        if ($this->except_create_at
+            && in_array('create_at', array_keys($this->model_fields))) {
+            $this->field_config['except_list'] =
+                array_merge($this->field_config['except_list'], ['create_at']);
+        }
+        // 自定义字段标题
+        if ( isset($this->field_config['comment'])
+            && is_array($this->field_config['comment'])) {
+            foreach ($this->field_config['comment'] as $column => $comment) {
+                if (isset($this->model_fields[$column]) && isset($this->model_fields[$column]['Comment'])) {
+                    $this->model_fields[$column]['Comment'] = $comment;
+                }
+            }
         }
     }
+
 
     /**
      * Index interface.
@@ -318,7 +332,9 @@ class BaseController extends Controller
             $field_config = $this->field_config;
             $fields = array_except(array_merge($this->model_fields, $field_config['extent_form']), $field_config['except_create']);
             foreach ($fields as $k => $v) {
-                if ($k == 'status') {
+                if ($this->autoload_admin_form && $k == $this->field_admin){
+                    $form->hidden($this->field_admin)->default(Admin::user()->id);
+                }else if ($k == 'status') {
                     $form->radio('status', $v['Comment'])->options($field_config['select'][$k])->default(1);
                 } else if (array_key_exists($k, $field_config['select'])) {
                     $obj = $form->select($k, $v['Comment'])->options($field_config['select'][$k]);
@@ -436,7 +452,13 @@ class BaseController extends Controller
                 $pk = app($this->model)->getKeyName();
                 if ($k == $pk) {
                     $form->display($k, ucwords($k))->value($v);
-                } else if ($k == 'status') {
+                } if ($this->autoload_admin_form && $k == $this->field_admin){
+                    $admin = AdminUsers::find($data[$k]);
+                    if ($admin->name){
+                        $form->text('','操作人')->default($admin->name)->readonly();
+                    }
+                    $form->hidden($this->field_admin)->default(Admin::user()->id);
+                }else if ($k == 'status') {
                     $form->radio('status', $v['Comment'])->options($field_config['select'][$k])->default($data[$k]);
                 } else if (array_key_exists($k, $field_config['select'])) {
                     $form->select($k, $v['Comment'])->options($field_config['select'][$k])->default($data[$k]);

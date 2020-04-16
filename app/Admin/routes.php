@@ -3,13 +3,13 @@
 use Illuminate\Routing\Router;
 
 Admin::routes();
-
 Route::group([
     'prefix' => config('admin.route.prefix'),
     'namespace' => config('admin.route.namespace'),
     'middleware' => config('admin.route.middleware'),
 ], function (Router $router) {
 
+    $router->resource('/auth/users', 'WorkerController')->names('admin.auth.users')->except('delete');
     $router->get('/', 'HomeController@index')->name('admin.home');
     $router->get('/settings', 'SettingController@index')->name('admin.settings');
     $router->get('/sites', 'SiteController@index')->name('admin.sites');

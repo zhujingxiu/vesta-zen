@@ -3,15 +3,17 @@
 namespace App\Models;
 
 
-class AdminUsers extends BaseModel
-{
-    protected $table = 'admin_users';
+use Encore\Admin\Auth\Database\Administrator;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-    protected $admin_user = false;
-    /**
-     * 不可被批量赋值的属性。
-     *
-     * @var array
-     */
+class AdminUsers extends Administrator
+{
     protected $guarded = [];
+
+
+    public function worker():HasOne
+    {
+        return $this->hasOne(Worker::class,'admin_id');
+    }
 }

@@ -15,7 +15,10 @@ class SiteTemplate extends BaseModel
         return $this->belongsToMany(SiteLanguage::class,'hz_site_tpl_lang','tpl_id','lang_id');
     }
 
-
+    public function admin()
+    {
+        return $this->belongsTo(AdminUsers::class);
+    }
 
 
 }

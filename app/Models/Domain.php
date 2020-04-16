@@ -12,6 +12,9 @@ class Domain extends BaseModel
     {
         return $this->belongsTo(CloudFlare::class,'cf_id');
     }
-
+    public function admin()
+    {
+        return $this->belongsTo(AdminUsers::class);
+    }
 
 }

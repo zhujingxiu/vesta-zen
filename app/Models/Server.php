@@ -22,4 +22,9 @@ class Server extends BaseModel
     {
         return $this->belongsTo(ServerGroup::class);
     }
+
+    public function admin()
+    {
+        return $this->belongsTo(AdminUsers::class,'admin_id');
+    }
 }

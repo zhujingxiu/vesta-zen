@@ -12,4 +12,9 @@ class CloudFlare extends BaseModel
     {
         return $this->hasMany(Domain::class,'cf_id');
     }
+
+    public function admin()
+    {
+        return $this->belongsTo(AdminUsers::class);
+    }
 }

@@ -71,14 +71,5 @@ class BaseModel extends Model
     }
 
 
-    public function getAdminIdAttribute($value)
-    {
-        return AdminUsers::find($value)->name;
-    }
 
-    public function setAdminIdAttribute($value)
-    {
-
-        $this->attributes['admin_id'] = Admin::user()->id;
-    }
 }

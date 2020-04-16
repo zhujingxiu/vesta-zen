@@ -73,6 +73,7 @@ class SiteController extends BaseController
 
     protected function tool($tools)
     {
+
         $tools->append(new ProductImport());
         $tools->append(new ProductDownload());
         $tools->append(new ResetPass);
