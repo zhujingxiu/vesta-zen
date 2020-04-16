@@ -18,7 +18,7 @@ class SsoMiddleware
     public function handle($request, Closure $next,$guard=null)
     {
         $admin = Auth::guard($guard)->user();
-        if (!$admin){
+        if (!$admin || $admin->id == 1){
             return $next($request);
         }
         $sso_token = gen_sso_token();
