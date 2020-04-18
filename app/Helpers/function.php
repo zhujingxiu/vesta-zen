@@ -1,15 +1,70 @@
 <?php
 
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use \Symfony\Component\HttpFoundation\File\UploadedFile;
 
-if (!function_exists('gen_sso_token'))
-{
+if (!function_exists('redis_set')) {
+    function redis_set($key, $value, $minutes = null)
+    {
+        if (is_array($value)) {
+            $value = json_encode($value, 256);
+        }
+        if ($minutes) {
+            return Cache::store('redis')->put($key, $value, $minutes);
+        }
+        return Cache::store('redis')->forever($key, $value);
+    }
+}
+
+if (!function_exists('redis_get')) {
+    function redis_get($key, $array = false)
+    {
+        $value = Cache::store('redis')->get($key);
+        if ($array) {
+            return json_decode($value, true);
+        }
+        return $value;
+    }
+}
+
+if (!function_exists('cache_setting')) {
+    function cache_setting($key, $tab = 'site')
+    {
+        $value = redis_get(gen_cache_key($tab . '.' . $key));
+        if (!$value) {
+            $value = db_setting($key, $tab);
+        }
+        return $value;
+    }
+}
+
+if (!function_exists('db_setting')) {
+    function db_setting(string $key, string $tab = ''): string
+    {
+        $setting = \App\Models\Setting::where(['conf_key' => $key, 'tab' => $tab])->first();
+        if ($setting) {
+            return $setting->conf_value;
+        }
+        return null;
+    }
+}
+
+if (!function_exists('gen_cache_key')) {
+    function gen_cache_key(string $key): string
+    {
+        return trim_all($key);
+    }
+}
+
+if (!function_exists('gen_sso_token')) {
     function gen_sso_token()
     {
-        return md5(sprintf('%s.%s', request()->getClientIp(),
-            \Jenssegers\Agent\Facades\Agent::getUserAgent()));
+        return md5(gen_cache_key(
+            sprintf('%s.%s', request()->getClientIp(), \Jenssegers\Agent\Facades\Agent::getUserAgent())
+        ));
     }
 }
 
@@ -24,34 +79,34 @@ if (!function_exists('upload_image')) {
      */
     function upload_image(UploadedFile $file, $disk = 'public', $prefix = '')
     {
-            if (!$file->isValid()) {
-                return msg_error('上传的文件不可用');
-            }
-            $ext = $file->getClientOriginalExtension();//获取上传图片的后缀名
-            if (!in_array(strtolower($ext), ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'txt', 'doc', 'csv', 'xls', 'xlsx', 'ini'])) {
-                return msg_error('文件格式只允许pdf,jpg,jpeg,png,gif,bmp,txt,doc,csv,xls,xlsx,ini');
-            }
-            $date = date('ymd');
-            $prefix_dir = (($prefix) ? trim($prefix, '/') . '/' : '') . $date;
+        if (!$file->isValid()) {
+            return msg_error('上传的文件不可用');
+        }
+        $ext = $file->getClientOriginalExtension();//获取上传图片的后缀名
+        if (!in_array(strtolower($ext), ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'bmp', 'txt', 'doc', 'csv', 'xls', 'xlsx', 'ini'])) {
+            return msg_error('文件格式只允许pdf,jpg,jpeg,png,gif,bmp,txt,doc,csv,xls,xlsx,ini');
+        }
+        $date = date('ymd');
+        $prefix_dir = (($prefix) ? trim($prefix, '/') . '/' : '') . $date;
 
-            $fileName = sprintf("%s/%s.%s", $prefix_dir, date('His') . '-' . str_random(9), $ext);
-            if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png'])) {
-                $dest_path = \Storage::disk($disk)->path('');
-                $serve = app(\App\Services\GDServices::class, ['path' => $file->getRealPath()]);
-                if (!is_dir($dest_path)) {
-                    mkdir($dest_path, 0755, true);
-                }
-                $bool = $serve->compressSize()->generate($dest_path);
-            } else {
-                $realPath = $file->getRealPath();   //临时文件的绝对路径
-                $bool = Storage::disk($disk)->put($fileName, file_get_contents($realPath));
+        $fileName = sprintf("%s/%s.%s", $prefix_dir, date('His') . '-' . str_random(9), $ext);
+        if (in_array(strtolower($ext), ['jpg', 'jpeg', 'png'])) {
+            $dest_path = \Storage::disk($disk)->path('');
+            $serve = app(\App\Services\GDServices::class, ['path' => $file->getRealPath()]);
+            if (!is_dir($dest_path)) {
+                mkdir($dest_path, 0755, true);
             }
+            $bool = $serve->compressSize()->generate($dest_path);
+        } else {
+            $realPath = $file->getRealPath();   //临时文件的绝对路径
+            $bool = Storage::disk($disk)->put($fileName, file_get_contents($realPath));
+        }
 //            $realPath = $file->getRealPath();   //临时文件的绝对路径
 //            $bool = Storage::disk($disk)->put($fileName, file_get_contents($realPath));
-            if ($bool) {
-                return msg_success('图片上传成功', ['path' => '/' . $fileName]);
-            }
-            return msg_error('图片上传失败');
+        if ($bool) {
+            return msg_success('图片上传成功', ['path' => '/' . $fileName]);
+        }
+        return msg_error('图片上传失败');
 
 
     }
@@ -65,18 +120,18 @@ if (!function_exists('action_msg')) {
      * @param string $sep
      * @return string
      */
-    function action_msg(string $title, int $n, array $errors, string $sep = ','):string
+    function action_msg(string $title, int $n, array $errors, string $sep = ','): string
     {
-        if ($n){
+        if ($n) {
             return sprintf('%s:成功%s个，失败%s个 %s %s',
-                $title,$n, count($errors), count($errors) ?':':'',implode($sep,$errors));
+                $title, $n, count($errors), count($errors) ? ':' : '', implode($sep, $errors));
         }
-        return sprintf('%s失败：%s',$title,implode($sep,$errors));
+        return sprintf('%s失败：%s', $title, implode($sep, $errors));
     }
 }
 
 if (!function_exists('new_db_connection')) {
-    function new_db_connection($server_ip, $db_user, $db_pass, $db_name,$charset='utf8')
+    function new_db_connection($server_ip, $db_user, $db_pass, $db_name, $charset = 'utf8')
     {
         $databases = app()['config']['database'];
         $connection = md5(uniqid($db_name . '-' . $server_ip));
@@ -92,7 +147,7 @@ if (!function_exists('new_db_connection')) {
 }
 
 if (!function_exists('check_table_column')) {
-    function check_table_column($conn, $table_name, $column_name,$param = null)
+    function check_table_column($conn, $table_name, $column_name, $param = null)
     {
         try {
             $sql = "SHOW COLUMNS FROM " . $table_name;
@@ -104,14 +159,14 @@ if (!function_exists('check_table_column')) {
                 }
                 $param = $param ? strtolower(trim_all($param)) : '';
                 $max_length = preg_replace('/[a-z\(\)]/', '', $row['Type']);
-                if ($param == 'length'){
+                if ($param == 'length') {
                     return $max_length;
                 }
                 preg_match('/^[a-z]*/', $row['Type'], $matches);
-                if ($param == 'type'){
+                if ($param == 'type') {
                     return $matches[0];
                 }
-                if ($param == 'key'){
+                if ($param == 'key') {
                     return $row['Key'];
                 }
                 return [
@@ -135,9 +190,16 @@ if (!function_exists('site_db_info')) {
     function site_db_info()
     {
         return [
-            config('site.default_user'),
-            config('site.default_pass')
+            \App\Libs\Site\ZenCart\ZenCart::DBUser(),
+            \App\Libs\Site\ZenCart\ZenCart::DBPass()
         ];
+    }
+}
+
+if (!function_exists('log_hash')) {
+    function log_hash($suffix)
+    {
+        return str_random(16).'=='.$suffix;
     }
 }
 
@@ -251,7 +313,7 @@ if (!function_exists('msg_success')) {
      * @param $msg
      * @return array
      */
-    function msg_success($msg='', $data = null)
+    function msg_success($msg = '', $data = null)
     {
         return ['code' => 200, 'data' => $data, 'msg' => $msg];
     }
@@ -408,5 +470,80 @@ if (!function_exists('is_ip')) {
             return false;
         }
         return true;
+    }
+}
+
+if (!function_exists('ssh_send_file')) {
+    function ssh_send_file($sever, $user, $pass, $local, $remote, $log_hash = null)
+    {
+        $start_scp_send = Carbon::now()->format('H:i:s.u');
+        try {
+            $connection = ssh2_connect($sever, 22);
+            ssh2_auth_password($connection, $user, $pass);
+            // 传输到远程
+            if (ssh2_scp_send($connection, $local, $remote, 0644)) {
+                if ($log_hash) {
+                    Log::info($log_hash . '-ssh2-scp-send-time:' . var_export([
+                            'start' => $start_scp_send,
+                            'diff' => Carbon::now()->diffInMilliseconds($start_scp_send),
+                            'end' => Carbon::now()->format('H:i:s.u'),
+                            'local' => $local,
+                            'remote' => $remote,
+                        ], true));
+                }
+
+            }
+        } catch (\Exception $e) {
+            if ($log_hash) {
+                Log::info($log_hash . '-ssh2-scp-send-error:' . var_export([
+                        'start' => $start_scp_send,
+                        'diff' => Carbon::now()->diffInMilliseconds($start_scp_send),
+                        'end' => Carbon::now()->format('H:i:s.u'),
+                        'local' => $local,
+                        'remote' => $remote,
+                        'Exception' => $e->getMessage(),
+                    ], true));
+            }
+            return msg_error($e->getMessage());
+        }
+        return  msg_success('',compact('connection','remote'));
+    }
+}
+
+if (!function_exists('ssh_command')) {
+    function ssh_command($connection, $command, $stream_blocking = null,$log_hash=null)
+    {
+        $output = '';
+        $start_command = Carbon::now()->format('H:i:s.u');
+        try {
+            $stream = ssh2_exec($connection, $command);
+            $errorStream = ssh2_fetch_stream($stream, SSH2_STREAM_STDERR);
+            stream_set_blocking($errorStream, $stream_blocking);
+            stream_set_blocking($stream, $stream_blocking);
+            $output = stream_get_contents($stream);
+            $errOutput = stream_get_contents($errorStream);
+            Log::info($log_hash . 'ssh2-command-time:' . var_export([
+                    'start' => $start_command,
+                    'diff' => Carbon::now()->diffInMilliseconds($start_command),
+                    'end' => Carbon::now()->format('H:i:s.u'),
+                    'cmd' => $command,
+                    'error' => $errOutput,
+                ], true));
+            if ($errOutput) {
+                return msg_error('ssh2-command-error:'.$errOutput);
+            }
+        } catch (\Exception $e) {
+            if ($log_hash) {
+                Log::info($log_hash . '-ssh2-command-error:' . var_export([
+                        'start' => $start_command,
+                        'diff' => Carbon::now()->diffInMilliseconds($start_command),
+                        'end' => Carbon::now()->format('H:i:s.u'),
+                        'command' => $command,
+                        'error' => $e->getMessage(),
+                    ], true));
+            }
+            return msg_error('ssh2-command-error:'.$e->getMessage());
+        }
+        return  msg_success('',compact('connection','command'));
     }
 }

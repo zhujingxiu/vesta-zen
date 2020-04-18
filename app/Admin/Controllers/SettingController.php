@@ -6,6 +6,7 @@ use App\Admin\Forms\Settings;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Widgets\Tab;
+use Illuminate\Http\Request;
 
 class SettingController extends Controller
 {
@@ -22,6 +23,4 @@ class SettingController extends Controller
             ->title('系统设置')
             ->body(Tab::forms($forms));
     }
-
-
 }

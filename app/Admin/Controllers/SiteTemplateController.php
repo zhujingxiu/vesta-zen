@@ -3,6 +3,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Events\ServiceCacheEvent;
 use App\Models\SiteLanguage;
 use App\Models\SiteTemplate;
 use App\Repositories\SiteTemplateRepository;
@@ -185,7 +186,6 @@ EOT
             admin_toastr($ret['msg'], 'error');
             return back()->withInput();
         }
-
         admin_toastr($ret['msg']);
         return redirect($this->list_url());
     }
@@ -223,7 +223,6 @@ EOT
         $remark = $request->get('remark');
         $status = $request->get('status');
         $languages = $request->get('languages');
-        //return $this->field_edit($id)->update($id);
         $ret = $this->repository->editTemplate($id, $name, $author, $preview, $path, $admin_dir, $db_file, $remark, $status, $languages);
         if ($ret['code'] != 200) {
             admin_toastr($ret['msg'], 'error');

@@ -6,9 +6,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Setting extends Model
+class Setting extends BaseModel
 {
-    protected $table = 'hz_setting';
-    public $timestamps = false;
-    protected $admin_user = false;
+    protected $table = 'hz_settings';
 }

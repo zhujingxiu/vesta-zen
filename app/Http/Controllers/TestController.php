@@ -11,6 +11,7 @@ use App\Libs\Site\Site;
 use App\Libs\Site\ZenCart\ImportProduct;
 use App\Libs\Site\ZenCart\Models\CategoriesDescription;
 use App\Libs\Site\ZenCart\Models\TaxClass;
+use App\Libs\Site\ZenCart\ZenCart;
 use App\Libs\Vesta;
 
 use App\Repositories\DomainRepository;
@@ -20,7 +21,9 @@ use App\Repositories\SiteRepository;
 use App\Repositories\SiteTemplateRepository;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redis;
 
 class TestController
 {
@@ -36,6 +39,13 @@ class TestController
     {
         try {
             $this->site = new Site($this->server_ip, $this->server_user, $this->server_pass);
+            dd(app(SiteLanguageRepository::class)->getLanguages());
+            $db_name = 'admin.homeuom.com';
+            $db_pass = 'tgJoyl5C9UgvZ';
+            $db_user = 'admin_myZenCart';
+            $pass = Cache::store('redis')->get('db_pass');
+            dd('before:',$pass,Cache::store('redis')->forever('db_pass',$db_pass.time()),'after:',Cache::store('redis')->get('db_pass'));
+            (new ZenCart($this->server_ip,$db_user,$db_pass,$db_name))->clearModules('sessions');
             //$this->site2 = new Site($this->server_ip2, $this->server_user2, $this->server_pass2);
         }catch (\Exception $e){
             dd($e->getMessage());
@@ -152,7 +162,7 @@ class TestController
             list($db_user, $db_pass) = site_db_info();
             $start_add_site = Carbon::now()->format('H:i:s.u');
             $site = new Site($server_ip, $server_user, $server_pass, $trace_hash);
-            $ret = $site->add($domain_str, $tpl_dir, $tpl_admin, $tpl_db, $lang_dir, $lang_code, $db_user, $db_pass);
+            $ret = $site->add($domain_str, $tpl_dir, $tpl_admin, $lang_dir, $lang_code, $tpl_db, $db_user, $db_pass);
             log_trace_millisecond($trace_hash . 'add-site-finished-time:', $start_add_site, compact('ret'));
 
             if ($ret['code'] == 200) {

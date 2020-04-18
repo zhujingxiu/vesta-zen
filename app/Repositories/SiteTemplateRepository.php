@@ -6,6 +6,7 @@ namespace App\Repositories;
 use App\Models\SiteTemplate;
 use App\Models\SiteTemplateLanguage;
 use Encore\Admin\Facades\Admin;
+use Illuminate\Support\Facades\Cache;
 
 class SiteTemplateRepository
 {
@@ -48,6 +49,7 @@ class SiteTemplateRepository
             if ($languages){
                 $entity->languages()->attach($languages);
             }
+
             return msg_success('站点模板添加成功', $entity->id);
         } else {
             return msg_error('站点模板添加失败');
@@ -96,15 +98,43 @@ class SiteTemplateRepository
         }
     }
 
+    /**
+     * @param bool $cache
+     * @return mixed
+     */
+    public function getTemplates($cache=true)
+    {
+        $key = config('site.templates_key');
+        $templates = redis_get($key,true);
+        if ($cache && $templates){
+            return $templates;
+        }
+        $all = $this->site_template->status(1)
+            ->select(['id','name','author','preview','path','admin_dir','db_file','sites','remark'])
+            ->orderBy('id')
+            ->get()->keyBy('id')->toArray();
 
+        if ($cache && $all) {
+            redis_set($key, $all);
+        }
+        return $all;
+    }
     /**
      * 通过id获取站点模板
      * @param $id
+     * @param $cache
      * @return mixed
      */
-    public function getTemplateById($id)
+    public function getTemplateById($id,$cache=true)
     {
-        return $this->site_template->find($id);
+        if (!$cache){
+            return $this->site_template->find($id)->toArray();
+        }
+        $templates = $this->getTemplates(true);
+        if ($templates && is_array($templates)){
+            return $templates[$id] ?? [];
+        }
+        return [];
     }
 
     public function getTemplateByName($name)

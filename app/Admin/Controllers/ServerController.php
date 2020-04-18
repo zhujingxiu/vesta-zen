@@ -105,15 +105,15 @@ HTML;
         if (!$siteTemplate) {
             return msg_error(sprintf('站点模板参数不合法： %s', $tpl_id));
         }
-        $tpl_dir = $siteTemplate->path;
-        $tpl_admin = $siteTemplate->admin_dir;
-        $tpl_db = $siteTemplate->db_file;
+        $tpl_dir = $siteTemplate['path'];
+        $tpl_admin = $siteTemplate['admin_dir'];
+        $tpl_db = $siteTemplate['db_file'];
         $siteLanguage = $this->siteLanguageRepository->getLanguageById($lang_id);
         if (!$siteLanguage) {
             return msg_error(sprintf('语言模板不合法： %s', $lang_id));
         }
-        $lang_dir = $siteLanguage->dir_name;
-        $lang_code = $siteLanguage->code;
+        $lang_dir = $siteLanguage['dir_name'];
+        $lang_code = $siteLanguage['code'];
         try {
             $records = [];
             if (!$level) {
@@ -145,7 +145,7 @@ HTML;
             $start_add_site = Carbon::now()->format('H:i:s.u');
             list($db_user, $db_pass) = site_db_info();
             $site = new Site($server_ip, $server_user, $server_pass, $trace_hash);
-            $ret = $site->add($domain_str, $tpl_dir, $tpl_admin, $tpl_db, $lang_dir, $lang_code, $db_user, $db_pass);
+            $ret = $site->add($domain_str, $tpl_dir, $tpl_admin, $lang_dir, $lang_code, $tpl_db, $db_user, $db_pass);
             log_trace_millisecond($trace_hash . 'add-site-finished-time:', $start_add_site, compact('ret'));
 
             if ($ret['code'] == 200) {

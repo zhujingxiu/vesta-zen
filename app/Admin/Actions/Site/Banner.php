@@ -189,7 +189,7 @@ NOTE
         $local_image = $image->getRealPath();
         $remote_file = sprintf("%s/%s/%s.%s", rtrim($site_folder, '/'), trim($dest_dir, '/'),
             md5($server_ip . microtime() . str_random(6)), $image->getClientOriginalExtension());
-        $ret = (new Site($server_ip, $server_user, $server_pass))->sendFile($local_image, $remote_file);
+        $ret = ssh_send_file($server_ip, $server_user, $server_pass,$local_image, $remote_file,log_hash(__METHOD__));
         if ($ret['code'] != 200) {
             return $ret;
         }

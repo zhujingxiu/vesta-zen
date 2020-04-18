@@ -1,12 +1,8 @@
 <?php
 return [
     'upload_max' => 64*1024*1024,
-    'default_user' => 'myZenCart',//最多四个前缀字符
-    'default_pass' => 'tgJoyl5C9UgvZ',
-
-
-    'site_admin' => 'xadmin',
-    'site_sql' => 'zencart.sql',
+    'templates_key' => 'templates',
+    'languages_key' => 'languages',
 
     //admin password
     'site_password_default' => 1,

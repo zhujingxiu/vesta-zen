@@ -335,7 +335,7 @@ class BaseController extends Controller
                 if ($this->autoload_admin_form && $k == $this->field_admin){
                     $form->hidden($this->field_admin)->default(Admin::user()->id);
                 }else if ($k == 'status') {
-                    $form->radio('status', $v['Comment'])->options($field_config['select'][$k])->default(1);
+                    $form->radio('status', $v['Comment'])->options($field_config['radio'][$k])->default(1);
                 } else if (array_key_exists($k, $field_config['select'])) {
                     $obj = $form->select($k, $v['Comment'])->options($field_config['select'][$k]);
                 } else if (array_key_exists($k, $field_config['multipleSelect'])) {
@@ -459,7 +459,7 @@ class BaseController extends Controller
                     }
                     $form->hidden($this->field_admin)->default(Admin::user()->id);
                 }else if ($k == 'status') {
-                    $form->radio('status', $v['Comment'])->options($field_config['select'][$k])->default($data[$k]);
+                    $form->radio('status', $v['Comment'])->options($field_config['radio'][$k])->default($data[$k]);
                 } else if (array_key_exists($k, $field_config['select'])) {
                     $form->select($k, $v['Comment'])->options($field_config['select'][$k])->default($data[$k]);
                 } else if (array_key_exists($k, $field_config['multipleSelect'])) {

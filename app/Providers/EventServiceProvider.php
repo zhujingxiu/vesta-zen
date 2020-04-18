@@ -16,6 +16,9 @@ class EventServiceProvider extends ServiceProvider
         'App\Events\Event' => [
             'App\Listeners\EventListener',
         ],
+        'App\Events\ServiceCacheEvent' => [
+            'App\Listeners\ResolveServiceCache',
+        ],
     ];
 
     /**
@@ -28,5 +31,6 @@ class EventServiceProvider extends ServiceProvider
         parent::boot();
 
         //
+        
     }
 }

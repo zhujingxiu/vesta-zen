@@ -4,11 +4,16 @@
 namespace App\Models;
 
 
+use App\Events\ServiceCacheEvent;
 use Encore\Admin\Facades\Admin;;
 
 class SiteTemplate extends BaseModel
 {
     protected $table = "hz_site_templates";
+
+    protected $dispatchesEvents = [
+        'saved' => ServiceCacheEvent::class
+    ];
 
     public function languages()
     {

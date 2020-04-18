@@ -8,6 +8,32 @@ class Vesta
     protected $user;
     protected $pass;
 
+    public static function SiteRoot($user, $domain)
+    {
+        return sprintf("/home/%s/web/%s/public_html", $user, $domain);
+    }
+
+    public static function SiteTempZipPath($user,$zip)
+    {
+        $file = date('mdHis') . str_random(4) . '-' . basename($zip);
+        return sprintf("/home/%s/tmp/%s", $user, $file);
+    }
+
+    public static function SiteTempDBFile($user,$db_file)
+    {
+        return sprintf("/home/%s/tmp/%s",$user,date('ymdhis').'-'.basename($db_file));
+    }
+
+    public static function SiteDBInfo($user,$domain,$db_user,$db_pass)
+    {
+        $user_prefix = $user . '_';
+        return [
+            stripos($domain, $user_prefix) === false ? $user_prefix . $domain : $domain,
+            stripos($db_user, $user_prefix) === false ? $user_prefix . $db_user : $db_user,
+            $db_pass
+        ];
+    }
+
     public function __construct($hostname, $user, $pass)
     {
         $this->host = $hostname;

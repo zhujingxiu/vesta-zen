@@ -95,7 +95,7 @@ HTML;
         // 替换后台文件
         $logo = $file->getRealPath();
         $remote_file = sprintf("%s/%s/images/logo.gif", trim($site_folder,'/'), trim($admin_dir,'/'));
-        $ret = (new Site($server_ip,$server_user,$server_pass))->sendFile($logo,$remote_file);
+        $ret = ssh_send_file($server_ip,$server_user,$server_pass,$logo,$remote_file,log_hash(__METHOD__));
         if ($ret['code']!=200){
             return $ret;
         }
